@@ -26,6 +26,16 @@ If you already have a big local workspace (e.g. `~/Apps/*`) with existing Cursor
 curl -fsSL https://raw.githubusercontent.com/kandr-ryan/kandr-bootstrap/main/install.sh | bash
 ```
 
+### Share card (OpenGraph)
+
+- SVG: `assets/og-bootstrap-setup.svg` (1200×630)
+- If you need a PNG, you can export locally (example using librsvg):
+
+```bash
+brew install librsvg
+rsvg-convert assets/og-bootstrap-setup.svg -w 1200 -h 630 -o og-bootstrap-setup.png
+```
+
 ### What happens when you run it
 
 - **Interactive menu** asks which bundles to install (everything is skipable).

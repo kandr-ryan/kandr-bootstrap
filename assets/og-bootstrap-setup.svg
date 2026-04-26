@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Brand mark -->
+  <rect x="60" y="60" width="80" height="80" rx="20" fill="url(#accent)"/>
+  <text x="100" y="118" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-weight="800" font-size="40" fill="white">K</text>
+  <text x="160" y="115" font-family="Inter, system-ui, -apple-system, sans-serif" font-weight="700" font-size="36" fill="white">Kandr</text>
+
+  <!-- Headline -->
+  <text x="60" y="285" font-family="Inter, system-ui, -apple-system, sans-serif" font-weight="800" font-size="72" fill="white">Bootstrap Setup</text>
+  <text x="60" y="360" font-family="Inter, system-ui, -apple-system, sans-serif" font-weight="500" font-size="30" fill="#94a3b8">
+    Install the dev toolchain + Cursor skills in minutes.
+  </text>
+
+  <!-- Footer -->
+  <text x="60" y="560" font-family="Inter, system-ui, -apple-system, sans-serif" font-weight="500" font-size="24" fill="#64748b">kandr-ryan/kandr-bootstrap</text>
+</svg>
+
