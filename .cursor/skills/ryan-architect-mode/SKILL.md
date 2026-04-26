@@ -1,6 +1,9 @@
 ---
 name: ryan-architect-mode
-description: How to use an architect agent before implementation: gather requirements, scan existing patterns, propose file-level changes, and produce an execution sequence. Use when work is large/ambiguous, spans many files/systems, or needs a clear blueprint before coding.
+description: >-
+  How to use an architect agent before implementation: gather requirements, scan existing
+  patterns, propose file-level changes, and produce an execution sequence. Use when work is
+  large/ambiguous, spans many files/systems, or needs a clear blueprint before coding.
 ---
 
 # Architect mode (before coding)

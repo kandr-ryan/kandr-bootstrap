@@ -1,6 +1,8 @@
 ---
 name: ryan-ops-loop
-description: Ongoing operational agent loop: triage → reproduce → fix → verify → ship → record. Use for production support, bugfixes, CI failures, and iterative maintenance tasks.
+description: >-
+  Ongoing operational agent loop (triage → reproduce → fix → verify → ship → record). Use for
+  production support, bugfixes, CI failures, and iterative maintenance tasks.
 ---
 
 # Ops loop (ongoing process)
