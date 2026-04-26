@@ -16,6 +16,18 @@ This skill is a **shareable, generic** “how I work” setup intended to make a
   - never do destructive credential/config operations without explicit approval
 - **Progressive disclosure**: keep this file short; refer to reference docs for details.
 
+## How this skill is meant to be used
+
+This repo intentionally splits “ways of working” into **multiple operational skills** so Cursor can apply the right playbook:
+
+- `ryan-workstyle-bootstrap` (this skill): entrypoint + overall defaults.
+- `ryan-changelog-release`: changelog + release discipline.
+- `ryan-ios-fastlane`: iOS release workflow (Fastlane/XcodeGen/CocoaPods).
+- `ryan-architect-mode`: how to use an architect agent before implementation.
+- `ryan-ops-loop`: ongoing operational loop (triage → fix → verify → ship).
+
+If a user request matches one of those areas, prefer the specialized skill.
+
 ## Quick start (new machine)
 
 1. Run the bootstrap script (interactive defaults are safe):
@@ -30,6 +42,14 @@ curl -fsSL https://raw.githubusercontent.com/kandr-ryan/kandr-bootstrap/main/ins
    - `firebase login`
 
 3. Optional: install iOS toolchain bundle (Fastlane/CocoaPods/XcodeGen) if you ship iOS.
+
+## Quick start (clone-to-productive)
+
+After you’ve cloned a repo and installed tooling, the “default next actions” are:
+
+- Create/verify `.cursor/rules/project-context.mdc` (identifiers + architecture)
+- Create/verify `.cursor/rules/local-toolchain.mdc` (safety + tool expectations)
+- Start a `CHANGELOG.md` early (see `ryan-changelog-release`)
 
 ## Quick start (new repo)
 
@@ -73,6 +93,15 @@ When the user asks to do work:
 - **Prefer structured inputs** (multi-choice) when options materially change approach.
 - **For multi-step work**: keep a short task list and update statuses.
 - **After edits**: run targeted verification (lint/tests) for the touched area.
+
+## “Reference my existing skills/projects” (optional, local-only)
+
+If the user has an existing `~/Apps/` workspace with prior projects and personal skills, use it as a source of truth:
+
+- Look for existing `.cursor/skills/**/SKILL.md` and `.cursor/rules/**/*.mdc` patterns in prior repos.
+- Prefer copying/adapting proven workflows rather than inventing new ones.
+
+This repo stays shareable, so it doesn’t assume those paths exist — it describes the *process*.
 
 ## Bootstrap script interface
 

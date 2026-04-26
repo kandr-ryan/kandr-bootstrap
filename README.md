@@ -6,13 +6,13 @@ Shareable **macOS bootstrap installer** + a **Cursor Skill** that documents a pr
 
 If you want a new machine to be productive quickly (without hand-installing a dozen CLIs, and without risky auto-configuration), this repo gives you:
 - a safe-by-default installer (`install.sh`)
-- a shareable Cursor Skill (`.cursor/skills/ryan-workstyle-bootstrap/`) that captures workflows + conventions
+- a shareable set of Cursor Skills (`.cursor/skills/*`) that capture workflows + conventions (bootstrap + release + ops)
 
 ### Cursor quick prompt
 
 After cloning this repo (or copying the skill into a project), open the skill file in Cursor and say:
 
-> “Use the `ryan-workstyle-bootstrap` skill in `.cursor/skills/ryan-workstyle-bootstrap/` as guidance for how to bootstrap this machine, what tool bundles to install, and what safety defaults to follow. Start by summarizing the available bundles/flags, then recommend a default install for a new macOS dev machine.”
+> “Use the skills in `.cursor/skills/` as guidance. Start with `ryan-workstyle-bootstrap` to bootstrap this machine (summarize bundles/flags and recommend a default). Then explain when to use `ryan-changelog-release`, `ryan-ios-fastlane`, `ryan-architect-mode`, and `ryan-ops-loop` as ongoing ways-of-working.”
 
 ### Quick start
 
