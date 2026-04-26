@@ -1,8 +1,10 @@
-## kandr-bootstrap
+## kandr-bootstrap (vendor-neutral bootstrap)
 
 **TL;DR**: Run one command to install a safe-by-default macOS dev toolchain **and** get a shareable Cursor Skill that teaches Cursor/agents how to use the setup.
 
-Shareable **macOS bootstrap installer** + a **Cursor Skill** that documents a pragmatic “how I work” setup.
+Shareable **macOS bootstrap installer** + a **Cursor Skill bundle** that documents a pragmatic “how I work” setup.
+
+This repo is meant to be **comprehensive but vendor-neutral**: it includes workflows and operational playbooks, but **no project-specific secrets, private repos, or org-specific constants**.
 
 If you want a new machine to be productive quickly (without hand-installing a dozen CLIs, and without risky auto-configuration), this repo gives you:
 - a safe-by-default installer (`install.sh`)
@@ -13,6 +15,10 @@ If you want a new machine to be productive quickly (without hand-installing a do
 After cloning this repo (or copying the skill into a project), open the skill file in Cursor and say:
 
 > “Use the skills in `.cursor/skills/` as guidance. Start with `ryan-workstyle-bootstrap` to bootstrap this machine (summarize bundles/flags and recommend a default). Then explain when to use `ryan-changelog-release`, `ryan-ios-fastlane`, `ryan-architect-mode`, and `ryan-ops-loop` as ongoing ways-of-working.”
+
+If you already have a big local workspace (e.g. `~/Apps/*`) with existing Cursor rules/skills, also say:
+
+> “Run the local inventory script `scripts/index-local-cursor-assets.sh` (if present) and use it to reference existing skills/rules across my projects without hardcoding paths in the shared docs.”
 
 ### Quick start
 
