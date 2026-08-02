@@ -290,7 +290,22 @@ exception — their Fastfiles hand-roll a `.env.local` reader at the top.
 - [ ] Reduce `platform-standards.mdc` to a pointer to `bill-platform-feature/SKILL.md` — they currently restate each other
 - [ ] Keep `dev-servers.mdc`
 
-### 7.10 Small projects
+### 7.10 photo-restorer-new v2 (Kandid Restoration) — DONE (2026-08-02)
+
+Prior deploy rules existed only on disk (~90 lines, never committed). Recovered in `15d27b1`.
+
+- [x] Two always-on files: `project-context.mdc`, `kandr-overlay.mdc` (121 lines total)
+- [x] Deploy detail in `kandid-deploy` skill — Cloud Run delta, not duplicated in rules or a
+      restatement of global `kandr-deploy` (which assumes Firebase Hosting)
+- [x] No thin wrapper rules for `kandr-stripe`, `kandr-secrets`, or `kandr-deploy` — overlay
+      trigger table and protected-path map only
+- [x] `.kandr-secrets` on `gen-lang-client-0284557591`; lowercase remote names
+      (`stripe-secret-key`, etc.) mapped to `SCREAMING_CASE` locals; `kandr-secrets doctor` passes
+- [x] Overlay warns that push to `main` triggers Cloud Build production deploy
+- [x] Frontmatter on both rules and `kandid-deploy` skill
+- [x] `.cursor/` secrets scan clean — no inline credential values
+
+### 7.11 Small projects
 
 - [ ] **pizzeria** — reduce `cloud-functions-agent.mdc` and `deploy-after-changes.mdc` to overlay deltas
 - [x] **Hunter-Book-Club-Stephen** — overlay + slim context; deleted `cloud-functions-agent.mdc` (2026-08-02)
@@ -358,7 +373,7 @@ machine.
 | `pizzeria` | 46 → 94 | `a5f70e6` | |
 | `yard-sale` | 44 → 128 | `c3285cf` | **Match password in git** — see below |
 | `capacity-planner` | 21 → 120 | `8508d80` | 13 rules had no frontmatter; `.cursor/` was gitignored |
-| `photo-restorer-new v2` | ~90 → 111 | `15d27b1` | recovered after aborted worker; rules were never committed before |
+| `photo-restorer-new v2` | ~90 → 121 | `6c115ab` | Cloud Run in `kandid-deploy`; `.cursor/` secrets scan clean; prior rules never committed |
 | `bill-agentic` | 85 | — | **pending** |
 | `Hunter-Book-Club-Stephen` | 65 → 116 | (this session) | overlay + slim context; deleted CF rule; Stripe config corrected to Firestore pattern |
 
