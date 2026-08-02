@@ -293,7 +293,7 @@ exception — their Fastfiles hand-roll a `.env.local` reader at the top.
 ### 7.10 Small projects
 
 - [ ] **pizzeria** — reduce `cloud-functions-agent.mdc` and `deploy-after-changes.mdc` to overlay deltas
-- [ ] **Hunter-Book-Club-Stephen** — same, plus extract the deploy section out of `project-context.mdc`
+- [x] **Hunter-Book-Club-Stephen** — overlay + slim context; deleted `cloud-functions-agent.mdc` (2026-08-02)
 - [ ] **pocs/Summer2026** — reduce `trip-site-deploy-after-changes.mdc` to the path→target table
 - [ ] **sunny-slope-haus** — add frontmatter to `sunny-slope-haus.mdc`, rename to `project-context.mdc`
 - [ ] **kandr.io** — has no `.cursor/` at all. Add `project-context.mdc` + overlay
@@ -360,7 +360,7 @@ machine.
 | `capacity-planner` | 21 → 120 | `8508d80` | 13 rules had no frontmatter; `.cursor/` was gitignored |
 | `photo-restorer-new v2` | ~90 → 111 | `15d27b1` | recovered after aborted worker; rules were never committed before |
 | `bill-agentic` | 85 | — | **pending** |
-| `Hunter-Book-Club-Stephen` | 65 | — | **pending** |
+| `Hunter-Book-Club-Stephen` | 65 → 116 | (this session) | overlay + slim context; deleted CF rule; Stripe config corrected to Firestore pattern |
 
 Repos with no `.cursor/` always-on layer (nothing to do): `kandr.io`, `sunny-slope-haus`,
 `app-automation`, `btw-driving`, `pocs`, `room-designer`.
