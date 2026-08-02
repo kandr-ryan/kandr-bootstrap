@@ -14,7 +14,7 @@ If you want a new machine to be productive quickly (without hand-installing a do
 
 After cloning this repo (or copying the skill into a project), open the skill file in Cursor and say:
 
-> “Use the skills in `.cursor/skills/` as guidance. Start with `ryan-workstyle-bootstrap` to bootstrap this machine (summarize bundles/flags and recommend a default). Then explain when to use `ryan-changelog-release`, `ryan-ios-fastlane`, `ryan-architect-mode`, and `ryan-ops-loop` as ongoing ways-of-working.”
+> “Use the skills in `.cursor/skills/` as guidance. Start with `kandr-workstyle` to bootstrap this machine (summarize bundles/flags and recommend a default). Then explain when to use `kandr-development`, `kandr-qa`, `kandr-functions`, `kandr-deploy`, `kandr-ios-release`, and `kandr-worklog` as ongoing ways-of-working.”
 
 If you already have a big local workspace (e.g. `~/Apps/*`) with existing Cursor rules/skills, also say:
 
@@ -83,16 +83,47 @@ Safe defaults: **installs missing tools only**, upgrades only with `--upgrade`.
 - `--upgrade`: allow upgrades for already-installed tools
 - `--non-interactive`: don’t prompt (use explicit `--with-*` / `--skip-*`)
 
-### Cursor Skill
+### Cursor Skills
 
-This repo includes a shareable Skill under:
+This repo ships a shareable skill bundle under `.cursor/skills/`:
 
-- `.cursor/skills/ryan-workstyle-bootstrap/`
+| Skill | Covers |
+|---|---|
+| `kandr-workstyle` | Entrypoint: bootstrap script, core principles, rules vs skills vs hooks |
+| `kandr-development` | Architect gate, extend-before-create, backward-compatibility review |
+| `kandr-qa` | Regression gate before shipping, production triage loop, evidence-first rule |
+| `kandr-functions` | Cloud Functions naming, contracts, logging, webhook idempotency |
+| `kandr-deploy` | Deploy authority, path→target table, verification evidence |
+| `kandr-ios-release` | Fastlane, XcodeGen, Match, certificate and keychain safety |
+| `kandr-secrets` | GCP Secret Manager as source of truth, per-repo manifests, the `kandr-secrets` helper |
+| `kandr-worklog` | Changelog, backlog, release notes |
 
-Copy that folder into any project repo to share the same skill with collaborators, or keep it in a template repo that new projects start from.
+Copy the folders into `~/.cursor/skills/` to make them available in every project, or into a
+single repo's `.cursor/skills/` to scope them to that project.
 
-The skill complements the installer by documenting:
+`kandr-secrets` also ships a helper at `scripts/kandr-secrets.sh`. Install it once so secrets
+resolve from the cloud without ever being pasted into a file:
+
+```bash
+cp scripts/kandr-secrets.sh ~/.cursor/scripts/
+chmod +x ~/.cursor/scripts/kandr-secrets.sh
+ln -sf ~/.cursor/scripts/kandr-secrets.sh /opt/homebrew/bin/kandr-secrets
+```
+
+The skills complement the installer by documenting:
 - what tools are expected / optional
 - how to structure Cursor rules vs skills vs hooks
 - safe-by-default workflow principles (checklist-first, opt-in upgrades, minimal destructive actions)
+
+Project-specific values — project IDs, bundle IDs, regions, hosting targets, lane names —
+never belong in these skills. They go in the consuming repo's `project-context.mdc` and
+`kandr-overlay.mdc`.
+
+- `docs/instruction-architecture.md` — **start here.** The four ownership layers, where Kandr
+  secrets end versus a client's begin, what each load mechanism costs per request, and the
+  separation of state from instruction
+- `docs/project-overlay-contract.md` — the section contract for those two files, when to reach
+  for a skill versus a subagent, the anti-patterns to avoid, and conflict-resolution rules
+- `templates/cursor-rules/` — copyable starting points for both files
+- `docs/skills-audit-2026-08.md` — the audit that produced this layering
 
