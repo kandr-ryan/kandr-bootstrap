@@ -339,5 +339,8 @@ destructive-operation prohibitions, the client-Stripe-key rule, "never use `Gene
 "the toolchain is installed, do not verify it" — moved into `kandr-router.mdc`, which grew from 36
 to 79 lines. The reference data behind each is what became loadable on demand.
 
-The global layer is mirrored into this repo under `.cursor/rules/` and `.cursor/skills/` so it is
-version controlled; `~/.cursor` itself is not a git repo.
+The global layer now lives in this repo under `global/`, and `~/.cursor/{rules,skills,scripts}`
+are symlinks into it — one copy, version controlled. It sits in `global/` rather than `.cursor/`
+because Cursor reads a repo's `.cursor/` as *project* config, which double-loaded every global
+rule whenever this repo was open. `scripts/link-global-cursor.sh` sets the links up on a new
+machine.

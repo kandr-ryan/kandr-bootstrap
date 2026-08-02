@@ -17,7 +17,7 @@ always-on text is charged on every turn whether or not it is relevant.
 
 | Layer | Owns | Lives in |
 |---|---|---|
-| 1. Kandr conventions | How we work and build, everywhere | `~/.cursor/rules/`, `~/.cursor/skills/kandr-*` |
+| 1. Kandr conventions | How we work and build, everywhere | `~/.cursor/rules/`, `~/.cursor/skills/kandr-*` — symlinks into `kandr-bootstrap/global/` |
 | 2. Kandr secrets | Our credentials | GCP Secret Manager, pointed to by `.kandr-secrets` |
 | 3. Client secrets | A client's own credentials | That app's per-tenant storage. **Never** Secret Manager |
 | 4. Project knowledge | What this app is and how it is wired | `<repo>/.cursor/` |

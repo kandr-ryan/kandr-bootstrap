@@ -8,13 +8,27 @@ This repo is meant to be **comprehensive but vendor-neutral**: it includes workf
 
 If you want a new machine to be productive quickly (without hand-installing a dozen CLIs, and without risky auto-configuration), this repo gives you:
 - a safe-by-default installer (`install.sh`)
-- a shareable set of Cursor Skills (`.cursor/skills/*`) that capture workflows + conventions (bootstrap + release + ops)
+- a shareable set of Cursor Skills (`global/skills/*`) that capture workflows + conventions (bootstrap + release + ops)
+
+### Global Cursor layer
+
+`global/` holds the agent configuration that applies in every repo — the always-on rules, the
+shared skills, and the scripts those skills invoke. `~/.cursor/rules`, `~/.cursor/skills`, and
+`~/.cursor/scripts` are symlinks into it, so there is exactly one copy and it is version
+controlled. Link it on a new machine with:
+
+```bash
+./scripts/link-global-cursor.sh
+```
+
+See [`global/README.md`](global/README.md) for the layout and
+[`docs/instruction-architecture.md`](docs/instruction-architecture.md) for the model behind it.
 
 ### Cursor quick prompt
 
 After cloning this repo (or copying the skill into a project), open the skill file in Cursor and say:
 
-> “Use the skills in `.cursor/skills/` as guidance. Start with `kandr-workstyle` to bootstrap this machine (summarize bundles/flags and recommend a default). Then explain when to use `kandr-development`, `kandr-qa`, `kandr-functions`, `kandr-deploy`, `kandr-ios-release`, and `kandr-worklog` as ongoing ways-of-working.”
+> “Use the skills in `global/skills/` as guidance. Start with `kandr-workstyle` to bootstrap this machine (summarize bundles/flags and recommend a default). Then explain when to use `kandr-development`, `kandr-qa`, `kandr-functions`, `kandr-deploy`, `kandr-ios-release`, and `kandr-worklog` as ongoing ways-of-working.”
 
 If you already have a big local workspace (e.g. `~/Apps/*`) with existing Cursor rules/skills, also say:
 
@@ -85,7 +99,7 @@ Safe defaults: **installs missing tools only**, upgrades only with `--upgrade`.
 
 ### Cursor Skills
 
-This repo ships a shareable skill bundle under `.cursor/skills/`:
+This repo ships a shareable skill bundle under `global/skills/`:
 
 | Skill | Covers |
 |---|---|
@@ -98,8 +112,9 @@ This repo ships a shareable skill bundle under `.cursor/skills/`:
 | `kandr-secrets` | GCP Secret Manager as source of truth, per-repo manifests, the `kandr-secrets` helper |
 | `kandr-worklog` | Changelog, backlog, release notes |
 
-Copy the folders into `~/.cursor/skills/` to make them available in every project, or into a
-single repo's `.cursor/skills/` to scope them to that project.
+Run `./scripts/link-global-cursor.sh` to symlink them into `~/.cursor/` and make them available
+in every project, or copy an individual folder into a single repo's `.cursor/skills/` to scope it
+to that project.
 
 `kandr-secrets` also ships a helper at `scripts/kandr-secrets.sh`. Install it once so secrets
 resolve from the cloud without ever being pasted into a file:
