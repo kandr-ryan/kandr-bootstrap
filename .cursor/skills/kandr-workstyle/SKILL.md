@@ -55,7 +55,7 @@ curl -fsSL https://raw.githubusercontent.com/kandr-ryan/kandr-bootstrap/main/ins
 After you’ve cloned a repo and installed tooling, the “default next actions” are:
 
 - Create/verify `.cursor/rules/project-context.mdc` (identifiers + architecture)
-- Create/verify `.cursor/rules/local-toolchain.mdc` (safety + tool expectations)
+- Create/verify `.cursor/rules/kandr-overlay.mdc` (the values the global skills need)
 - Start a `CHANGELOG.md` early (see `kandr-worklog`)
 
 ## Quick start (new repo)
@@ -67,7 +67,8 @@ Use this decision rule:
 
 Recommended baseline project rules:
 - `project-context.mdc`: identifiers, architecture, roles, env assumptions
-- `local-toolchain.mdc` (or equivalent): tool inventory + environment safety constraints
+- `kandr-overlay.mdc`: project IDs, targets, lane names — the values global skills reference.
+  Machine safety and tool inventory are global (`kandr-router.mdc`, `kandr-machine`), not per-repo.
 
 ## Tooling map (what to use when)
 

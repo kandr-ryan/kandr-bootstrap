@@ -128,7 +128,7 @@ done
 
 The cert whose SHA appears in the output is the correct one; the others are stale.
 
-**Then stop and ask the user before deleting anything.** `local-toolchain.mdc` prohibits the
+**Then stop and ask the user before deleting anything.** `kandr-router.mdc` prohibits the
 agent from running `security delete-certificate`. Present the stale SHA and the exact command
 so the user can run it themselves:
 
@@ -303,4 +303,4 @@ Never report a build as uploaded without the command output proving it.
 - `kandr-deploy` — why native builds are gated differently from backend deploys
 - `kandr-qa` — the regression gate before any release
 - `kandr-worklog` — recording the release
-- `local-toolchain.mdc` — the machine safety rules this skill defers to
+- `kandr-router.mdc` — the machine safety rules this skill defers to; `kandr-machine` for tool versions and paths

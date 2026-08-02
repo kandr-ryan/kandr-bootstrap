@@ -1,0 +1,21 @@
+---
+description: Auto-pull latest changes from remote on initial project open only
+globs: 
+alwaysApply: true
+---
+
+# Project Startup — Auto-Pull
+
+Run `git pull` **only once per project session** — when the project is first opened (i.e., the very first conversation after Cursor launches or the workspace is opened). **Do NOT run git pull at the start of subsequent conversations within the same session.**
+
+When triggered:
+
+1. Check if the workspace is a git repo (`git rev-parse --is-inside-work-tree`)
+2. If yes, run `git pull` to fetch the latest from the tracked remote branch
+3. Report the result briefly:
+   - New changes pulled: "Pulled N new commits from {branch}."
+   - Already current: "Repo is up to date."
+   - Pull blocked by local changes: warn the user and suggest stashing or committing first. Do NOT force-pull or reset.
+4. If the workspace is not a git repo, skip silently.
+
+This step should be fast and automatic — do not ask for permission, just do it.

@@ -31,7 +31,7 @@ build to TestFlight. Code changes to native app source do not imply a build.
 
 No `match nuke`, no revoking or deleting certificates, no deleting keychain identities,
 no rotating credentials — regardless of what would be convenient. If signing is broken,
-describe the error and ask. See `local-toolchain.mdc`.
+describe the error and ask. The machine safety rules are in `kandr-router.mdc`.
 
 This skill grants permission to *execute* a deploy. It does not grant permission to skip
 the review gates in `kandr-development` and `kandr-qa`.

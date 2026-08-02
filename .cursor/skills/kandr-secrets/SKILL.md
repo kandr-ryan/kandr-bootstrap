@@ -111,6 +111,6 @@ Kandr's Stripe account is `acct_1BkgZwYzUC9pmt72JzDX`. If a Stripe key resolves 
 
 - Never write a credential value into a tracked file, a commit message, a log line, or chat.
 - Never print a secret to verify it. Compare lengths or hashes instead.
-- A secret shared by several projects exists as a separate copy per project. Rotating it means updating every copy — check `agentmail.mdc` for which projects share which key before rotating.
+- A secret shared by several projects exists as a separate copy per project. Rotating it means updating every copy — check the `kandr-email` skill for which projects share which AgentMail key before rotating.
 - When a value in Secret Manager reads `placeholder`, `PLACEHOLDER`, or `CHANGE_ME`, treat it as missing. It is worse than absent, because a non-empty string passes an `if (!key)` guard and fails later at the API call.
 - If a secret genuinely does not exist yet, say so and ask. Do not invent a value, and do not silently fall back to a key from another project.

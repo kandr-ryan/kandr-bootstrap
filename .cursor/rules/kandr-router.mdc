@@ -1,0 +1,79 @@
+---
+description: Routes work to the shared kandr-* skills and carries the standing safety rules that need no trigger. Read the matching skill before acting on any development, QA, functions, deploy, iOS release, secrets, worklog, Stripe, Firebase, AWS, email, image, or toolchain task.
+alwaysApply: true
+---
+
+# Kandr skill router
+
+These are the shared conventions across every Kandr project. Read the matching skill **before**
+acting, not after. Each is at `~/.cursor/skills/<name>/SKILL.md`.
+
+## Process — how we work
+
+| When the work involves | Read |
+|---|---|
+| Planning a feature, designing an API or data model, refactoring, or finishing an implementation | `kandr-development` |
+| Reviewing, regression testing, QA, sanity checks, "before we ship", crashes, incidents, CI failures, production bugs | `kandr-qa` |
+| Cloud Functions, HTTP endpoints, Firestore triggers, scheduled jobs, webhooks | `kandr-functions` |
+| Deploying, shipping, pushing live, or deciding whether a deploy needs permission | `kandr-deploy` |
+| iOS, Fastlane, TestFlight, App Store Connect, match, signing, certificates, XcodeGen, build or marketing versions | `kandr-ios-release` |
+| API keys, tokens, passwords, env files, "missing key" errors, adding or rotating a credential | `kandr-secrets` |
+| Changelogs, backlogs, release notes, "what changed", task lists, QA checklists | `kandr-worklog` |
+
+## Services — what we run on
+
+| When the work involves | Read |
+|---|---|
+| Stripe: checkout, subscriptions, billing, invoices, webhooks, or where a Stripe key belongs | `kandr-stripe` |
+| A Firebase project ID, hosting site or target, deploy command, or custom domain | `kandr-firebase` |
+| AWS CLI, Route 53, DNS records, or pointing a subdomain somewhere | `kandr-aws` |
+| Sending email, inboxes, sending domains, contact forms, delivery problems | `kandr-email` |
+| Generating or editing an image, logo, icon, hero, or visual asset | `kandr-images` |
+| A tool version, a binary path, or a failure that smells like PATH or toolchain | `kandr-machine` |
+| Sentry, error tracking, release health | `kandr-sentry` |
+
+## Layering
+
+- These skills hold the **how** — the process, conventions, and safety rules.
+- The project's `project-context.mdc` and `kandr-overlay.mdc` hold the **what** — project IDs,
+  bundle IDs, regions, hosting targets, collection names, lane names, secret names.
+- Where a project overlay gives a concrete value, it wins. Where it contradicts a **safety
+  rule** in one of these skills, the skill wins — flag the contradiction to the user.
+
+## Standing rules that need no trigger
+
+**Shipping**
+
+- Never deploy a native app build (TestFlight, App Store, Play) without an explicit request.
+- Never report deploy, crash, payment, or production state without live tool output proving it.
+
+**Credentials**
+
+- Never commit or log a secret value.
+- Never store a client's Stripe key centrally — it belongs in that tenant's app config, never in
+  Secret Manager, a `.kandr-secrets` manifest, a rule, or a skill.
+- Never change or reset a password — Match, keychain, or API key. If one is wrong, say so and ask.
+
+**Destructive operations — ask first, every time**
+
+- Never revoke, delete, regenerate, or modify certificates or provisioning profiles, and never run
+  `match nuke`.
+- Never run `security delete-keychain`, `delete-identity`, or `delete-certificate`.
+- Never unlock the keychain with a password from a file. Only the opt-in Secret Manager path in
+  `kandr-ios-release` section 3 is permitted, and only where the project declares it.
+- Never modify `~/.aws/credentials`, `~/.aws/config`, or gcloud auth config. The one exception is
+  creating AWS files that do not exist yet, per `kandr-aws`.
+- Never modify shell profiles (`.zshrc`, `.zprofile`, `.bashrc`). Set PATH inline instead.
+- Never reinstall, upgrade, or uninstall a tool — no `brew upgrade`, `gem update`, `npm i -g`.
+
+**Environment**
+
+- The standard toolchain is installed: brew, Homebrew Ruby, bundler, fastlane, cocoapods, Xcode,
+  xcodegen, node, npm, firebase, gcloud, aws, git, gh, docker, python3, jq. Do not check whether a
+  tool exists or ask the user to install one. Versions and paths are in `kandr-machine`.
+- Use Homebrew Ruby, never system Ruby, for any Ruby, Fastlane, or Bundler command.
+- When the environment breaks, report the error and ask. Do not repair it destructively.
+
+**Tools**
+
+- Never use the built-in `GenerateImage` tool. Image generation goes through `kandr-images`.

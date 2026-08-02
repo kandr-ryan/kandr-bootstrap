@@ -30,7 +30,7 @@ Keep hooks **fail-open** by default unless you intentionally want “fail-closed
   - app name, repo URL, deployment targets, runtime versions
   - key data models and collections (if applicable)
   - role model and auth
-- Add `.cursor/rules/local-toolchain.mdc` describing:
+- Machine tooling is global, not per-repo — see `kandr-machine` and `kandr-router.mdc`. Historically this was a per-repo rule describing:
   - expected local tooling
   - what not to do automatically (credentials, upgrades, destructive resets)
 

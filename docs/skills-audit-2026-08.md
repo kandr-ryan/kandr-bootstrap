@@ -313,13 +313,31 @@ Things deliberately **not** made global:
   project data, not a pattern.
 - **Content/voice guides.** Faith Music's voice pillars are ~92% project-specific.
 
-Things deliberately kept as always-on global rules (not converted to on-demand skills):
+Things deliberately kept as always-on global rules:
 
-- `local-toolchain.mdc` — machine safety rules must never be missed
+- `kandr-router.mdc` — the router, plus every standing safety rule
 - `project-startup.mdc` — git pull on first open
 - `i-have-adhd-default.mdc` — communication style
-- `kandr-router.mdc` — the router itself
+- `project-bootstrap.mdc` — greenfield interception, and the guard against firing in an existing repo
 
-Reference fact-sheets (`firebase-projects`, `aws-credentials`, `agentmail`, `stripe-integration`,
-`nano-banana-images`) remain always-on for now. They are candidates for conversion to on-demand
-skills in a later pass if context budget becomes a problem.
+## Global reference conversion (done 2026-08-02)
+
+The five reference fact-sheets were converted to on-demand skills, and `local-toolchain.mdc` was
+split. Global always-on went from **545 lines to 134**.
+
+| Was (always-on rule) | Now |
+|---|---|
+| `stripe-integration.mdc` (95) | `kandr-stripe` skill |
+| `aws-credentials.mdc` (78) | `kandr-aws` skill |
+| `nano-banana-images.mdc` (74) | `kandr-images` skill |
+| `firebase-projects.mdc` (63) | `kandr-firebase` skill |
+| `agentmail.mdc` (63) | `kandr-email` skill |
+| `local-toolchain.mdc` (63) | tool table → `kandr-machine` skill; safety rules → router |
+
+The safety content did **not** become on-demand. Anything that must fire without a trigger — the
+destructive-operation prohibitions, the client-Stripe-key rule, "never use `GenerateImage`", and
+"the toolchain is installed, do not verify it" — moved into `kandr-router.mdc`, which grew from 36
+to 79 lines. The reference data behind each is what became loadable on demand.
+
+The global layer is mirrored into this repo under `.cursor/rules/` and `.cursor/skills/` so it is
+version controlled; `~/.cursor` itself is not a git repo.

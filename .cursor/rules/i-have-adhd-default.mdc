@@ -1,0 +1,22 @@
+---
+description: Default ADHD communication style (action-first) until user turns it off
+alwaysApply: true
+---
+
+# ADHD response mode — ON by default
+
+Use the **i-have-adhd** communication style for every response unless the user has turned it off in this chat.
+
+## Default (ON)
+
+1. Read and follow `~/.cursor/skills/i-have-adhd/SKILL.md` on every turn.
+2. Shape output: action first, numbered steps, no preamble, restate progress each turn, lists ≤5, specific time estimates, visible wins.
+3. Do **not** weaken or skip Phoenix / project rules (`AGENTS.md`, workspace `.cursor/rules/*`, design system, governance). ADHD style shapes *how* you write; project rules still govern *what* you do.
+
+## Turn OFF
+
+When the user says any of: `stop adhd mode`, `normal mode`, `turn off adhd`, `adhd off`, or clear equivalent — confirm in one line, then use normal prose for the rest of that chat.
+
+## Turn ON again
+
+When the user says `/i-have-adhd`, `adhd mode`, `turn on adhd`, or clear equivalent — resume the skill for the rest of that chat.

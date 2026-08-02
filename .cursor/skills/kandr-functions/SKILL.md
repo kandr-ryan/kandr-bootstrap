@@ -98,11 +98,17 @@ turned into a `Date` is a classic source of corrupt records.
 
 ## 6. Secrets
 
-- Declare secrets in the function config: `secrets: ["STRIPE_SECRET_KEY"]`
+- Declare secrets in the function config: `secrets: ["STRIPE_SECRET_KEY"]`. Firebase injects
+  them at runtime, so functions need **no** local env file and no fetch code
 - Read them from `process.env` at call time, never at module load
-- Store them in GCP Secret Manager, per project — Secret Manager is not global to the account
+- The secret must exist on the same GCP project the functions deploy to — Secret Manager is
+  per-project, not account-wide. Cross-project reads need explicit IAM and are a smell
+- Guard on validity, not just presence. A secret whose value is the string `placeholder`
+  passes `if (!key)` and then fails at the API call, which is far harder to diagnose
 - **Never** write a secret to a client-readable data path. Server-only config paths only
 - Never commit a secret. Never paste one into a rule, skill, or changelog
+
+Full workflow, manifest format, and the `kandr-secrets` commands are in the `kandr-secrets` skill.
 
 ---
 

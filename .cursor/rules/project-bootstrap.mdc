@@ -1,0 +1,12 @@
+---
+description: Triggers the project-bootstrap skill when starting a greenfield app, and blocks it from firing inside an existing project
+alwaysApply: true
+---
+
+When the user starts a **new** app or project — "new app", "bootstrap", "scaffold", "spin up",
+"set up a new", "let's build X" where X is greenfield — read and follow the `project-bootstrap`
+skill before doing anything else. Gather requirements first; the checklist varies enough by app
+type that skipping the questions produces the wrong scaffold.
+
+**This does not apply to existing projects.** Adding a feature to a repo that already exists is
+not bootstrapping, and this must not fire there. It also never auto-builds or auto-deploys.
