@@ -285,10 +285,12 @@ exception — their Fastfiles hand-roll a `.env.local` reader at the top.
 - [ ] Delete `git-pull-on-session.mdc` — duplicates the global `project-startup.mdc`
 - [ ] Keep `apple-iap-expert` and both routing rules (this is where the routing pattern came from)
 
-### 7.9 bill-agentic — 1 skill, 2 rules
+### 7.9 bill-agentic — 1 skill, 3 rules — DONE (2026-08-02)
 
-- [ ] Reduce `platform-standards.mdc` to a pointer to `bill-platform-feature/SKILL.md` — they currently restate each other
-- [ ] Keep `dev-servers.mdc`
+- [x] Deleted `platform-standards.mdc` — duplicated `bill-platform-feature` skill; pointer lives in overlay protected-domains table
+- [x] Added `project-context.mdc` and `kandr-overlay.mdc` per overlay contract
+- [x] Kept `dev-servers.mdc` (session-end port checklist — legitimately always-on)
+- [x] `.kandr-secrets` already present on `bill-agentic` GCP project
 
 ### 7.10 photo-restorer-new v2 (Kandid Restoration) — DONE (2026-08-02)
 
@@ -374,7 +376,7 @@ machine.
 | `yard-sale` | 44 → 128 | `c3285cf` | **Match password in git** — see below |
 | `capacity-planner` | 21 → 120 | `8508d80` | 13 rules had no frontmatter; `.cursor/` was gitignored |
 | `photo-restorer-new v2` | ~90 → 121 | `6c115ab` | Cloud Run in `kandid-deploy`; `.cursor/` secrets scan clean; prior rules never committed |
-| `bill-agentic` | 85 | — | **pending** |
+| `bill-agentic` | 85 → 192 | (this session) | overlay + context; deleted duplicate platform-standards; kept dev-servers |
 | `Hunter-Book-Club-Stephen` | 65 → 116 | (this session) | overlay + slim context; deleted CF rule; Stripe config corrected to Firestore pattern |
 
 Repos with no `.cursor/` always-on layer (nothing to do): `kandr.io`, `sunny-slope-haus`,
