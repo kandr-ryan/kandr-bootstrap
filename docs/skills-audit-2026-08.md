@@ -344,3 +344,36 @@ are symlinks into it — one copy, version controlled. It sits in `global/` rath
 because Cursor reads a repo's `.cursor/` as *project* config, which double-loaded every global
 rule whenever this repo was open. `scripts/link-global-cursor.sh` sets the links up on a new
 machine.
+
+## Phase 2 project cleanup — status (2026-08-02)
+
+| Repo | Always-on before → after | Commit | Notes |
+|---|---|---|---|
+| `radio-app` | 1,031 → 202 | (prior session) | reference |
+| `streaming-app` | 1,291 → 210 | (prior session) | reference |
+| `AK Consulting` | 199 → 171 | `04f922a` | |
+| `Fish On!` | 163 → 149 | `893a533` | **Match password inline** — see below |
+| `shopify-waypoint` | 132 → 150 | `ef3e389` | global `waypoint-development` removed |
+| `kandr-crm` | 118 → 122 | `b864ee7` | **unsubscribe secret fallback** — see below |
+| `pizzeria` | 46 → 94 | `a5f70e6` | |
+| `yard-sale` | 44 → 128 | `c3285cf` | **Match password in git** — see below |
+| `capacity-planner` | 21 → 120 | `8508d80` | 13 rules had no frontmatter; `.cursor/` was gitignored |
+| `photo-restorer-new v2` | ~90 → 111 | `15d27b1` | recovered after aborted worker; rules were never committed before |
+| `bill-agentic` | 85 | — | **pending** |
+| `Hunter-Book-Club-Stephen` | 65 | — | **pending** |
+
+Repos with no `.cursor/` always-on layer (nothing to do): `kandr.io`, `sunny-slope-haus`,
+`app-automation`, `btw-driving`, `pocs`, `room-designer`.
+
+### Security findings — rotate before treating as clean
+
+These were found during cleanup and **left in place** per the secrets pass rule (do not remove
+without a rotation plan). Each is in git history.
+
+| Repo | Finding | Remediation |
+|---|---|---|
+| `Fish On!` | Match password inline in `.cursor/rules/fastlane-deployment.mdc` (3 places) + keychain unlock commands | Rotate `MATCH_PASSWORD` on `fishon-kandr-app`; use `kandr-secrets env ios/fastlane/.env --group fastlane`; delete or thin the rule |
+| `yard-sale` | Match password in `FASTLANE.md`, `fastlane/.env.local.example`, `apple-deployment-expert/SKILL.md` | Rotate on `yard-sale-3a062`; value is mirrored in Secret Manager per SECRET-AUDIT header |
+| `kandr-crm` | `crmEmail.ts` falls back to `"kandr-crm-unsub-2026"` — no `CRM_UNSUBSCRIBE_SECRET` in Secret Manager | Creating the secret **invalidates every unsubscribe link already sent**; product decision |
+
+| `kandr-crm` | Not a leak but a gap | Do not add `CRM_UNSUBSCRIBE_SECRET` to `.kandr-secrets` until the secret exists — `doctor` would false-fail |
