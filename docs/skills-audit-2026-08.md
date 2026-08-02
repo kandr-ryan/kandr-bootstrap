@@ -312,7 +312,9 @@ Prior deploy rules existed only on disk (~90 lines, never committed). Recovered 
 - [ ] **pizzeria** — reduce `cloud-functions-agent.mdc` and `deploy-after-changes.mdc` to overlay deltas
 - [x] **Hunter-Book-Club-Stephen** — overlay + slim context; deleted `cloud-functions-agent.mdc` (2026-08-02)
 - [ ] **pocs/Summer2026** — reduce `trip-site-deploy-after-changes.mdc` to the path→target table
-- [ ] **sunny-slope-haus** — add frontmatter to `sunny-slope-haus.mdc`, rename to `project-context.mdc`
+- [x] **sunny-slope-haus** — split legacy `sunny-slope-haus.mdc` into overlay + context (2026-08-02)
+- [x] **btw-driving** — added overlay + context; un-gitignored `.cursor/` (2026-08-02)
+- [x] **room-designer** — added overlay + context; no `.kandr-secrets` (client-only SPA) (2026-08-02)
 - [ ] **kandr.io** — has no `.cursor/` at all. Add `project-context.mdc` + overlay
 - [ ] **_templates/cursor-rules/** — replace the stale radio-derived templates with the overlay contract
 
@@ -378,9 +380,11 @@ machine.
 | `photo-restorer-new v2` | ~90 → 121 | `6c115ab` | Cloud Run in `kandid-deploy`; `.cursor/` secrets scan clean; prior rules never committed |
 | `bill-agentic` | 85 → 192 | (this session) | overlay + context; deleted duplicate platform-standards; kept dev-servers |
 | `Hunter-Book-Club-Stephen` | 65 → 116 | (this session) | overlay + slim context; deleted CF rule; Stripe config corrected to Firestore pattern |
+| `sunny-slope-haus` | 28 → 119 | `60808f3` | split legacy rule; `.kandr-secrets` on `sunny-slope-haus-kandr`; no project skills |
+| `btw-driving` | 0 → 133 | `90f9817` | Greenlight; un-gitignored `.cursor/`; `.kandr-secrets` untracked (runtime on `greenlight-drive`) |
+| `room-designer` | 0 → 117 | `9df24cd` | client-only SPA; no `.kandr-secrets`; **no git remote** — push pending |
 
-Repos with no `.cursor/` always-on layer (nothing to do): `kandr.io`, `sunny-slope-haus`,
-`app-automation`, `btw-driving`, `pocs`, `room-designer`.
+Repos with no `.cursor/` always-on layer (nothing to do): `kandr.io`, `app-automation`, `pocs`.
 
 ### Security findings — rotate before treating as clean
 
