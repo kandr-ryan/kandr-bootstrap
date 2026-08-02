@@ -1,0 +1,44 @@
+---
+description: Core identifiers, architecture, and domain invariants for <APP NAME>
+alwaysApply: true
+---
+
+# <APP NAME> — Project Context
+
+Facts only. No process and no workflow — those live in the shared `kandr-*` skills.
+Target length: 80 lines or fewer.
+
+## Identifiers
+
+| Setting | Value |
+|---|---|
+| Firebase project | `<project-id>` |
+| Primary URL | `<domain>` |
+| GitHub repo | `<org/repo>` |
+| Functions runtime / region | Node 22 / `<region>` |
+| Bundle ID (if native) | `<bundle.id>` |
+
+## Architecture
+
+<Two or three sentences: what this is, the stack, and the tenancy model if there is one.>
+
+Surfaces:
+
+- `web/` — <what it is>
+- `admin-console/` — <what it is>
+- `functions/` — <what it is>
+- `ios/` — <what it is>
+
+## Data model
+
+Collection paths and their purpose, plus the scoping key. Full schemas belong in the code,
+not here.
+
+- `<collection>` — <purpose, scoping key>
+
+## Domain invariants
+
+Rules that are true in this project and nowhere else — the things that break when someone
+does not know them.
+
+- <invariant>

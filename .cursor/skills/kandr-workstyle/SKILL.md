@@ -1,9 +1,9 @@
 ---
-name: ryan-workstyle-bootstrap
-description: Encodes a pragmatic Cursor/Claude workstyle with checklists, safety constraints, and a macOS bootstrap script for installing core dev CLIs (Homebrew, git, gh, node, firebase, gcloud, jq) plus optional bundles (docker, iOS tooling like fastlane/cocoapods/xcodegen, and integrations like Stripe CLI, Linear CLI, and Claude Code). Use when setting up a new machine, bootstrapping a repo, or when the user mentions Cursor setup, Claude Code, toolchain, bootstrap, Homebrew, Firebase, gcloud, Stripe, Linear, fastlane, or iOS deploy.
+name: kandr-workstyle
+description: Entrypoint for the shared workstyle — core principles, the macOS bootstrap script for installing dev CLIs (Homebrew, git, gh, node, firebase, gcloud, jq) plus optional bundles (docker, iOS tooling, integrations), and the rules-vs-skills-vs-hooks decision guide. Use when setting up a new machine, bootstrapping a repo, or when the user mentions Cursor setup, toolchain, bootstrap, Homebrew, Firebase, gcloud, Stripe, Linear, fastlane, or iOS deploy.
 ---
 
-# Ryan workstyle + bootstrap
+# Workstyle + bootstrap
 
 This skill is a **shareable, generic** “how I work” setup intended to make a new machine or new repo feel ready-to-go without rediscovering conventions.
 
@@ -18,15 +18,22 @@ This skill is a **shareable, generic** “how I work” setup intended to make a
 
 ## How this skill is meant to be used
 
-This repo intentionally splits “ways of working” into **multiple operational skills** so Cursor can apply the right playbook:
+Ways of working are split into **multiple operational skills** so Cursor can apply the right
+playbook. This one is the entrypoint and holds only the overall defaults.
 
-- `ryan-workstyle-bootstrap` (this skill): entrypoint + overall defaults.
-- `ryan-changelog-release`: changelog + release discipline.
-- `ryan-ios-fastlane`: iOS release workflow (Fastlane/XcodeGen/CocoaPods).
-- `ryan-architect-mode`: how to use an architect agent before implementation.
-- `ryan-ops-loop`: ongoing operational loop (triage → fix → verify → ship).
+- `kandr-development`: architect gate, extend-before-create, backward-compatibility review.
+- `kandr-qa`: regression gate before shipping, plus the production triage loop.
+- `kandr-functions`: Cloud Functions naming, contracts, logging, webhook idempotency.
+- `kandr-deploy`: what the agent may deploy, and the verification evidence required.
+- `kandr-ios-release`: iOS release workflow (Fastlane / XcodeGen / Match).
+- `kandr-secrets`: resolving API keys and passwords from GCP Secret Manager.
+- `kandr-worklog`: changelog, backlog, release notes.
 
-If a user request matches one of those areas, prefer the specialized skill.
+If a request matches one of those areas, prefer the specialized skill.
+
+Install them by copying `.cursor/skills/*` into `~/.cursor/skills/` (available in every
+project) or into a single repo's `.cursor/skills/` (that project only). A `kandr-router.mdc`
+rule with a trigger→skill table makes the routing explicit.
 
 ## Quick start (new machine)
 
@@ -49,7 +56,7 @@ After you’ve cloned a repo and installed tooling, the “default next actions�
 
 - Create/verify `.cursor/rules/project-context.mdc` (identifiers + architecture)
 - Create/verify `.cursor/rules/local-toolchain.mdc` (safety + tool expectations)
-- Start a `CHANGELOG.md` early (see `ryan-changelog-release`)
+- Start a `CHANGELOG.md` early (see `kandr-worklog`)
 
 ## Quick start (new repo)
 

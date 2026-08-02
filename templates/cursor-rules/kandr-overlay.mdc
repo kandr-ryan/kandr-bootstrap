@@ -1,0 +1,77 @@
+---
+description: Project deltas for the shared kandr-* skills — verification commands, deploy targets, protected domains, and release identifiers
+alwaysApply: true
+---
+
+# <APP NAME> — kandr skill overlay
+
+The shared `kandr-*` skills define the process. This file supplies the values for this repo.
+
+**Deltas only.** If a line would be true in another Kandr project, it belongs in a global
+skill — delete it from here. Target length: 20-40 lines.
+
+## Verification commands (kandr-qa)
+
+| Gate | Command |
+|---|---|
+| Typecheck | `npx tsc --noEmit` in `<packages>` |
+| Lint | `<command>` |
+| Build | `<command>` |
+
+## Deploy targets (kandr-deploy)
+
+Firebase project: `<project-id>`
+
+| Changed paths | Deploy target |
+|---|---|
+| `web/` | `hosting:web` |
+| `admin-console/` | `hosting:admin` |
+| `functions/` | `functions` |
+| `firestore.rules` / `firestore.indexes.json` | `firestore:rules` / `firestore:indexes` |
+
+Live URLs: <list>
+
+## Protected domains (kandr-qa)
+
+Consult the named skill before editing these paths:
+
+| Path | Consult first |
+|---|---|
+| `<path>` | `<skill>` |
+
+## Cloud Functions deltas (kandr-functions)
+
+- Region: `<region>`
+- Tenant scoping key: `<field>`
+
+## Secrets (kandr-secrets)
+
+Names are in the committed `.kandr-secrets` manifest — run `kandr-secrets list`. Record only
+what the manifest cannot express:
+
+- GCP project: `<project-id>`
+- Shared with other projects (rotation affects them too): `<NAME>` → `<projects>`
+- Known placeholders or gaps: `<NAME>` and what it blocks
+
+## iOS release deltas (kandr-ios-release)
+
+Delete this section entirely if the project has no native app.
+
+| Setting | Value |
+|---|---|
+| Bundle ID | `<bundle.id>` |
+| ASC app ID | `<id>` |
+| ASC API key ID | `<key-id>` |
+| Match repo | `<org/repo-certs>` |
+| `MATCH_PASSWORD` | Secret Manager → `kandr-secrets env ios/fastlane/.env --group fastlane` |
+| Lanes | `<lane>`, `<lane>` |
+| Project path / scheme | `ios/` / `<Scheme>` |
+
+Quirks: <e.g. Watch target must be version-bumped too; App Clip needs `ensure_app_clip`
+before deliver>
+
+## Work log paths (kandr-worklog)
+
+- Changelog: `CHANGELOG.md`
+- Backlog: `BACKLOG.md`
+- Area tags: `[iOS]`, `[Admin]`, `[Functions]`
