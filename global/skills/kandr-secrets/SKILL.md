@@ -40,7 +40,7 @@ This file is safe to commit. It contains no values.
 | `kandr-secrets doctor` | Verify every entry resolves — run this first when a credential-related command fails |
 | `kandr-secrets list` | Show what the repo expects and where each secret lives |
 
-Add `--group NAME` to limit a command to one manifest section, so a Fastlane env file does not receive a Sentry token.
+Add `--group NAME` to limit a command to one manifest section, so a Fastlane env file does not receive a Sentry token. Chrome Web Store publish credentials use the `[cws]` group — see `kandr-chrome-web-store`.
 
 Values are cached under `~/.cache/kandr-secrets` for 15 minutes at `0600`, which takes a repeat load from ~700ms to ~40ms. Pass `--no-cache` after rotating a secret, or run `kandr-secrets clear-cache`.
 
@@ -60,6 +60,14 @@ export const chargeCustomer = onCall(
 ```
 
 The secret must exist on the *same* project the functions deploy to. Cross-project reads need an explicit IAM grant and are a smell — copy the secret instead.
+
+**Cursor cloud agents — Cursor Secrets by name.** Cloud VMs do not have `gcloud` ADC or laptop
+`firebase login`. Put a **Runtime Secret** in
+[Cursor Dashboard → Cloud Agents → Secrets](https://cursor.com/dashboard?tab=cloud-agents)
+using the **same env var name** as `.kandr-secrets`. For Firebase deploys across all Kandr
+repos, that name is `FIREBASE_TOKEN` — full lookup order is in `kandr-deploy` §2b. Skills and
+overlays document the **name** only, never the value. Match GCP Secret Manager per project so
+local `kandr-secrets get NAME` and cloud `$NAME` stay aligned.
 
 **Fastlane — generate `.env`.** Fastlane auto-loads `fastlane/.env`, so `MATCH_PASSWORD` and Apple credentials resolve without a prompt:
 

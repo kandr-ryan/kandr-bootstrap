@@ -27,6 +27,11 @@ Never run `fastlane beta`, `deliver`, `xcodebuild archive`, or an Android releas
 unless the user asked for it in explicit terms. "Fix this bug" is not a request to ship a
 build to TestFlight. Code changes to native app source do not imply a build.
 
+**Chrome Web Store publish: no, never without explicit permission.**
+
+Never run `release:cws`, `upload:cws`, or `publish:cws` unless the user asked for a store
+release. Extension code changes do not imply a CWS upload. See `kandr-chrome-web-store`.
+
 **Destructive credential operations: no, ever.**
 
 No `match nuke`, no revoking or deleting certificates, no deleting keychain identities,
@@ -49,6 +54,32 @@ the review gates in `kandr-development` and `kandr-qa`.
 Deploying code that does not compile wastes a rollback cycle and can take a surface down.
 
 ---
+
+## 2b. Cloud agent Firebase auth (Kandr-wide)
+
+This is the **canonical** deploy-auth playbook for every Kandr Firebase project. Project
+overlays and project deploy skills must not re-teach it — they only supply project IDs
+and the path→target table (see §3).
+
+Cursor cloud agents (desktop, web, mobile, Slack, etc.) do not inherit laptop `gcloud` /
+`firebase login`. Resolve auth in this order:
+
+1. **Cloud agent:** Runtime Secret named `FIREBASE_TOKEN` in
+   [Cursor Dashboard → Cloud Agents → Secrets](https://cursor.com/dashboard?tab=cloud-agents).
+   Injected as env `$FIREBASE_TOKEN`. Same secret name for every Kandr repo (account/team
+   scope) — one Cursor Secret covers all Firebase projects your account can deploy.
+2. **Local agent / laptop:** same name via `kandr-secrets get FIREBASE_TOKEN` or
+   `eval "$(kandr-secrets load)"`. Each repo's `.kandr-secrets` maps that name to **that
+   project's** GCP Secret Manager entry (project ID lives in the overlay, not here).
+3. If `$FIREBASE_TOKEN` is unset, **stop**. Do not invent a token, paste a value into
+   chat, or dump Secret Manager into the transcript.
+
+Then deploy with the overlay's Firebase project ID and path→target table (`firebase deploy
+--only … --project PROJECT_ID`). Prefer in-session Firebase CLI over GitHub Actions
+(Actions are optional backup; they burn minutes).
+
+**Overlay one-liner (required per Firebase repo):** under Secrets, name only —
+`FIREBASE_TOKEN` (Cursor Runtime Secret + GCP via `kandr-secrets`). Never the value.
 
 ## 3. The path-to-target table
 
@@ -114,4 +145,5 @@ without changing something.
 - `kandr-qa` — the regression gate that runs before deploy
 - `kandr-functions` — server-side conventions and pre-deploy typecheck
 - `kandr-ios-release` — the native app release path, which is gated differently
+- `kandr-chrome-web-store` — Chrome extension store upload/publish, also gated
 - `kandr-worklog` — recording what shipped
