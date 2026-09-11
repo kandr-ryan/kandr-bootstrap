@@ -11,11 +11,49 @@ All Kandr apps use Firebase. The CLI is authenticated as `rlibbey@gmail.com`.
 
 | Project ID | App | Hosting Sites |
 |---|---|---|
-| `rlibbey-pocs` | **kandr.io** (parent site), POCs | `kandr-io` → kandr.io, `ai-localization-poc`, `bill-kyc-poc`, `app-automation-poc` |
+| `rlibbey-pocs` | **kandr.io** (parent site, including `/share` private pages), POCs | `kandr-io` → kandr.io, `ai-localization-poc`, `bill-kyc-poc`, `app-automation-poc` |
 | `streamingapp-32dcb` | **Faith Music Streaming** | `streamingapp-32dcb` → faithmusic.kandr.io, `streamingapp-32dcb-e9588` → admin.faithmusic.kandr.io |
 | `kandr-radio-app` | **Kandr Radio** | `kandr-radio-app` → radio.kandr.io, `fmr-radio-site`, `wvfv-radio-site` |
 | `yard-sale-3a062` | **Yard Seller** | `yard-sale-marketing` → yardsale.kandr.io |
 | `capacity-planner-app` | **Capacity Planner** | default site |
+
+## Confirm the project before acting
+
+**Pick the project from the repo, not from whichever tool answers.** Every repo that uses these
+skills should name its project in its own `project-context.mdc` / repo skill — read that first.
+
+Two things go wrong often enough to check every time:
+
+- **The Firebase MCP tools can be bound to a different project than the repo you are in.** They
+  have returned another app's rules and function list in a repo that maps to a different project.
+  Never treat MCP output as proof of what is deployed; confirm the schema looks like the repo's,
+  or use the CLI.
+- **A named Firestore database is not `(default)`.** Some Kandr projects use a named database
+  (e.g. `radio-app-db`), which is pinned in `firebase.json` as `"database"`. Tools, console views
+  and ad-hoc queries that assume `(default)` will read the wrong (empty) database.
+
+```bash
+# Which project am I pointed at?
+cat .firebaserc                                  # the repo's declared project
+gcloud config get-value project                  # the CLI's active project
+
+# Verify identity by number, not name
+gcloud projects describe PROJECT_ID --format="value(projectNumber)"
+
+# Which Firestore databases exist, and which is default?
+gcloud firestore databases list --project PROJECT_ID
+```
+
+Rules deploys honor `firebase.json`'s `"database"` field, so
+`firebase deploy --only firestore:rules --project PROJECT_ID` lands on the right database even
+when it is named. Reading them back is what needs care — the Rules API requires an explicit
+quota project, or it returns `403 ... requires a quota project`:
+
+```bash
+TOKEN=$(gcloud auth print-access-token)
+curl -s -H "Authorization: Bearer $TOKEN" -H "x-goog-user-project: PROJECT_ID" \
+  "https://firebaserules.googleapis.com/v1/projects/PROJECT_ID/releases"
+```
 
 ## Secrets
 

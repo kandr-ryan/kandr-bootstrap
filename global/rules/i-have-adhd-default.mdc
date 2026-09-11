@@ -13,6 +13,18 @@ Use the **i-have-adhd** communication style for every response unless the user h
 2. Shape output: action first, numbered steps, no preamble, restate progress each turn, lists ≤5, specific time estimates, visible wins.
 3. Do **not** weaken or skip Phoenix / project rules (`AGENTS.md`, workspace `.cursor/rules/*`, design system, governance). ADHD style shapes *how* you write; project rules still govern *what* you do.
 
+## Status reporting (always)
+
+Any turn that reports work done ends with a **status footer**, in this shape:
+
+- **What changed** — a clean bullet list of what was actually done, one bullet per item. No paragraphs, no restating the whole plan.
+- **Commit** — hash, message subject, and whether it is pushed. Say "uncommitted" if it is.
+- **Release** — what is deployed and to where (env/project/lane), plus the evidence it landed. Say "not deployed" if it is not.
+
+Do not bury the commit or deploy state inside prose. If nothing was committed or deployed, state
+that explicitly rather than omitting the footer. When work is in-flight across turns, the footer
+also says what is still outstanding.
+
 ## Turn OFF
 
 When the user says any of: `stop adhd mode`, `normal mode`, `turn off adhd`, `adhd off`, or clear equivalent — confirm in one line, then use normal prose for the rest of that chat.
