@@ -236,6 +236,15 @@ Cloud rather than this Mac. When one does, Step 1 is a cloud workflow run rather
 beta` — see "Xcode Cloud builds" below — and Step 2 is unchanged. The overlay names the product,
 the workflow and any trigger helper.
 
+**Every project delta states its build path explicitly; silence is read as "not adopted".** A
+delta that names only `fastlane beta` is saying the cloud is not in use, so if that is deliberate
+it must say so, and if adoption is planned it must say that too. This is not bookkeeping: the two
+paths run separate counters and must never build one marketing version, so a reader has to
+distinguish "not adopted" from "not documented" without inferring it from a skill nobody wrote. A
+cloud project names its product, workflow and trigger helper; a local project names the lane and
+whether its station or scheme argument is required; a project mid-adoption names what is still
+unknown.
+
 **Step 1 — build and upload to TestFlight:**
 
 _On a project whose overlay still names the local lane as the path, that lane is `fastlane beta`:_

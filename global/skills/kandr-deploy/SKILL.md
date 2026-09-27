@@ -107,6 +107,11 @@ firebase deploy --only firestore:rules,functions,hosting:web --project PROJECT_I
 Validating rules before a real deploy is always fine:
 `firebase deploy --only firestore:rules --dry-run`
 
+Native mobile rows are the exception that must not be silent: `ios/` and `android/` have no
+Firebase target, so the overlay row states the **build path** instead — Xcode Cloud or local
+`fastlane beta` and its station/scheme argument — because a row that says nothing leaves "not
+adopted" indistinguishable from "not documented". The mechanism is in `kandr-ios-release` §8.
+
 ---
 
 ## 4. Ship the whole loop
