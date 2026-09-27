@@ -314,6 +314,31 @@ field that is easy to get wrong — `dsaEncoding: "ieee-p1363"`, because Node si
 and Apple answers that with `InvalidProviderToken`, an error naming the token rather than the
 encoding.
 
+### Reading a finished run's log — the answer to "we could not verify it"
+
+A cloud run's output is not visible in a terminal, but it **is** reachable over the same API, so
+"the build log was not read" is not a reason to record a cloud result as unverified. A run has
+**build actions** (`GET /v1/ciBuildRuns/{id}/actions`), each action has **artifacts**
+(`GET /v1/ciBuildActions/{id}/artifacts`), and one artifact is the **`LOG_BUNDLE`** — the archive
+log and the CI scripts' output, packaged at the end of the action. Its `downloadUrl` is signed and
+short-lived and must be fetched **without** the bearer token; it is a CDN host, so sending the
+token there is a leak with no benefit. Unzip it and the logs are on disk.
+
+**Finding the run.** The refusal in the table above is the collection list `GET /v1/ciBuildRuns`,
+which stays 403. The **scoped** lists are not refused: `GET /v1/ciProducts/{id}/buildRuns` returns
+every run in the product (sorted by number, so the newest is first) and
+`GET /v1/ciWorkflows/{id}/buildRuns` narrows to one workflow. That is how "the most recent run" and
+"the run for build N" are reached without the web UI.
+
+**Why it matters.** A claim that depends on the build log — a dSYM or symbol upload, a signing
+step, a `ci_post_clone` action, whether a build phase fired — can be either read or guessed, and a
+guess recorded as a fact is the failure this prevents. When a run's log has been read, record what
+it says; when it has not, say **unverified** and say why. Do not let an unverifiable claim stand as
+a verified one, and do not let a proven *script* stand in for a proven *run*: an unchanged
+`ci_post_xcodebuild.sh` says nothing about whether the upload happened on the run in question.
+Where the project's trigger helper supports it, its log flag wraps this whole path — prefer it to
+hand-rolled calls.
+
 ### The next build number is not the per-version counter
 
 `fastlane status` and `latest_testflight_build_number` report App Store Connect's **per-version**
