@@ -231,7 +231,14 @@ rm -rf ~/Library/Developer/Xcode/Archives/<AppName>.xcarchive
 "Release" is two distinct actions. Conflating them causes the most common failure in this
 workflow.
 
+**Check the project overlay for the build path before Step 1.** Some Kandr apps build on Xcode
+Cloud rather than this Mac. When one does, Step 1 is a cloud workflow run rather than `fastlane
+beta` — see "Xcode Cloud builds" below — and Step 2 is unchanged. The overlay names the product,
+the workflow and any trigger helper.
+
 **Step 1 — build and upload to TestFlight:**
+
+_On a project whose overlay still names the local lane as the path, that lane is `fastlane beta`:_
 
 ```bash
 export PATH="/opt/homebrew/opt/ruby/bin:/opt/homebrew/lib/ruby/gems/4.0.0/bin:$PATH"
@@ -254,14 +261,73 @@ bundle exec fastlane run deliver \
 
 Why each flag matters:
 
-- **`skip_binary_upload:true`** — `beta` already uploaded the IPA. Without this, `deliver`
-  tries to upload again and fails with **409 Redundant Binary Upload**. Never run a combined
-  `release` lane that does both in one pass.
+- **`skip_binary_upload:true`** — the build step already uploaded the IPA (`beta` locally, the
+  cloud workflow when the project builds there). Without this, `deliver` tries to upload again and
+  fails with **409 Redundant Binary Upload**. Never run a combined `release` lane that does both in
+  one pass.
 - **`app_version` and `build_number`** — always pass them explicitly. Without them `deliver`
   cannot create the new App Store version and fails with "Cannot find edit app store version"
   after retrying for 20+ minutes.
 - **`precheck_include_in_app_purchases:false`** — ASC API key auth cannot validate in-app
   purchases, so precheck fails without this.
+
+### Xcode Cloud builds
+
+An Xcode Cloud workflow owns the archive, the IPA export and the TestFlight upload. When a project
+uses one, **it is the build path and the local `beta` lane is the documented fallback.** Do not run
+both for the same marketing version: Xcode Cloud's counter and `latest_testflight_build_number`
+never see each other, so the second upload is rejected as "already been used" minutes after an
+archive that looked clean. Confirm the cloud run actually finished — and that its build number is
+the one recorded — before concluding a fallback is needed.
+
+**A cloud run is scriptable, and the REST API is the only programmatic path.** Opening the App
+Store Connect web UI or the Xcode app is a convenience, not a requirement. `POST /v1/ciBuildRuns`
+starts a run:
+
+```json
+{ "data": { "type": "ciBuildRuns",
+            "attributes": { "clean": true },
+            "relationships": {
+              "workflow": { "data": { "type": "ciWorkflows", "id": "<workflow id>" } },
+              "sourceBranchOrTag": { "data": { "type": "scmGitReferences", "id": "<ref id>" } } } } }
+```
+
+`GET /v1/ciProducts` lists the products and `GET /v1/ciProducts/{id}/workflows` the workflows, so
+the ids never have to be copied out of the UI. Two responses mislead if you have not seen them
+before: `GET /v1/ciBuildRuns` is refused **403** with the body *"Allowed operations are: CREATE,
+GET_INSTANCE"* — creation is the permitted operation and listing is not, so that body is not a
+denial of the endpoint — and a `POST` with no `workflow` relationship **409s** with *"You must
+provide a value for the relationship 'workflow'"*, which is how you know the rest of the shape was
+accepted. The API targets a **branch or tag, never a raw commit SHA** — `sourceBranchOrTag` is the
+only ref selector — so "build this exact commit" means "push a branch or tag that points at it
+first".
+
+The two tools people reach for on the assumption they can do this **cannot**: Spaceship has no
+Xcode Cloud surface at all (no `ci_build_run`, `ciWorkflow` or `xcodecloud` anywhere in the gem),
+and the Xcode CLI ships no cloud or CI tool — `altool` and `notarytool` only upload and notarize.
+Do not spend a session looking for a caller; there is only the REST API. Environment variables are
+the part that genuinely has **no** API surface and must be entered in the web UI or Xcode — do not
+read that gap as covering the trigger.
+
+Where the project ships a trigger helper, use it rather than hand-rolling the call: the JWT has one
+field that is easy to get wrong — `dsaEncoding: "ieee-p1363"`, because Node signs DER by default
+and Apple answers that with `InvalidProviderToken`, an error naming the token rather than the
+encoding.
+
+### The next build number is not the per-version counter
+
+`fastlane status` and `latest_testflight_build_number` report App Store Connect's **per-version**
+counter. Xcode Cloud stamps the build with `CI_BUILD_NUMBER`, which is **product-wide and
+monotonic**: every run in the product consumes a number, including the compile-only workflows that
+fire on every push to the default branch. On the release where this surfaced, `fastlane status`
+predicted **11** and the build uploaded as **17**, because CI runs #11–#16 had already consumed the
+intervening numbers; App Store Connect accepted the jump.
+
+So **confirm the next number from Xcode Cloud / App Store Connect** (Settings → Xcode Cloud →
+Build Number → Next Build Number) rather than predicting it, and treat any per-version figure as
+advisory. Never present it as "the next build number", and never hand-edit a number to close the
+gap — numbers no longer restart at 1 when the marketing version bumps; the counter is across
+versions.
 
 ---
 
@@ -281,6 +347,8 @@ Why each flag matters:
 | `errSecInternalComponent` during export/codesign | Keychain relocked between sequential builds | If the project declares `KEYCHAIN_PASSWORD`, unlock per section 3; otherwise ask the user |
 | ITMS-90683 missing purpose string | `Info.plist` missing an `NS*UsageDescription` key | Add the key. Check `git diff` on Info.plist — large commits revert these |
 | `CI=true` breaks match | Cursor sets `CI=true`, putting match in readonly mode | `export CI=false` |
+| `403` `"Allowed operations are: CREATE, GET_INSTANCE"` on `GET /v1/ciBuildRuns` | Listing cloud build runs is not permitted; only create and instance-read are | Not a denial of the endpoint — `POST /v1/ciBuildRuns` starts a run. See "Xcode Cloud builds" |
+| Cloud build number is well ahead of `latest_testflight_build_number` / `fastlane status` | The Xcode Cloud counter is product-wide, and push-triggered compile-only runs consumed the intervening numbers | Expected — read the next number from App Store Connect, not from the per-version prediction |
 
 ---
 
