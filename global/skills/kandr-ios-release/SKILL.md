@@ -382,6 +382,14 @@ corroborating transition is `buildBetaDetail.internalBuildState`: a build in no 
 build stranded this way is repaired rather than rebuilt. Read `betaGroups` before reporting any
 TestFlight build as available, and say "uploaded but in no group" when that is what the API shows.
 
+**The remedy is to make the attach part of the trigger, not a checklist item — a step a human
+remembers is the step that gets skipped.** Where the project ships a cloud trigger helper, its run
+path should wait for the build to process and attach it before it returns, with a separate
+attach-only path for repairing a build that already uploaded. Select the group by
+`isInternalGroup` and assert it internal before writing, so an external group can never be
+targeted; then **read the relationship back** (`betaGroups`, and the `internalBuildState`
+transition) — an attach that is not read back is not evidence it landed.
+
 ---
 
 ## 9. Common errors
