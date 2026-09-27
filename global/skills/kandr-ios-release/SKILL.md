@@ -268,6 +268,13 @@ bundle exec fastlane run deliver \
   precheck_include_in_app_purchases:false
 ```
 
+**On a project that builds on the cloud, confirm the build can be attached before running Step 2.**
+`deliver` can submit only a build whose `buildAudienceType` is `APP_STORE_ELIGIBLE`, and a workflow
+that archives `INTERNAL_ONLY` produces builds that pass every TestFlight check and can never be
+submitted at all. The error it returns names neither the audience nor the workflow, so read the
+audience off the build being submitted rather than diagnosing it after the fact — see "Xcode Cloud
+builds" below.
+
 Why each flag matters:
 
 - **`skip_binary_upload:true`** — the build step already uploaded the IPA (`beta` locally, the
@@ -390,6 +397,58 @@ attach-only path for repairing a build that already uploaded. Select the group b
 targeted; then **read the relationship back** (`betaGroups`, and the `internalBuildState`
 transition) — an attach that is not read back is not evidence it landed.
 
+### A cloud build is not submittable unless its archive distributes `APP_STORE_ELIGIBLE`
+
+**`VALID`, attachable and installable does not mean submittable.** Apple will attach a build to an
+App Store version only when its `buildAudienceType` is `APP_STORE_ELIGIBLE`. That audience is set
+by the archive action's `buildDistributionAudience` and **is fixed at upload, with no field to edit
+afterwards** — so a build uploaded `INTERNAL_ONLY` can never ship, and no retry, wait, or rebuild at
+the same number changes it.
+
+The failure is worse than the cause, because the error points somewhere else. `deliver` aborts with
+
+> The provided entity includes a relationship with an invalid value - The specified pre-release
+> build could not be added. - `/data/relationships/build`
+
+which reads as a fastlane or Spaceship defect, a processing race, or a problem with the version's
+state, and names neither the audience nor the workflow. Every instinct it invites — wait longer,
+retry, re-upload, inspect the version — is wrong, because nothing about the build or the version is
+at fault.
+
+**Both build paths look identical from here, which is why it hides.** The local lane's
+`upload_to_testflight` uploads `APP_STORE_ELIGIBLE`; a workflow is created with the picker's first
+option, and `INTERNAL_ONLY` is plausibly what it gets. The two paths produce builds that are both
+`VALID`, both attach to TestFlight groups, and differ only in whether they can ever be submitted —
+so the defect surfaces at submission time, on a build already given to testers, possibly weeks
+after it was uploaded.
+
+**Read it in two places, and only the second decides.** `GET /v1/ciWorkflows/{id}` →
+`actions[].buildDistributionAudience` says what a *new* build will be. `GET /v1/builds/{id}` →
+`attributes.buildAudienceType` says what an *already uploaded* one is. A workflow can be corrected
+while an existing build stays unshippable, so check the build that is actually being submitted.
+
+**The workflow is editable over the API, and the attribute replaces the array wholesale.** A no-op
+`PATCH /v1/ciWorkflows/{id}` returning `200`, with `isLockedForEditing: false`, confirms it — the
+web UI implies otherwise. Send the **full** `actions` array carrying every existing action and
+change only the archive's audience, because a partial array silently drops the actions it omits.
+Then **read the workflow back**: a mistake here is invisible until a submission fails. Re-check the
+workflow's triggers in that same read-back, since fixing an audience must not disturb a manual-only
+configuration.
+
+**Where the project ships a trigger helper, it should refuse rather than warn.** The cost of
+finding out is a full archive; the cost of checking is one API read. Have the helper assert every
+archive action is `APP_STORE_ELIGIBLE` and exit before it starts anything, **include the dry run in
+that check** — a preview that cannot say "this build can never ship" is not a preview — and leave an
+explicit override for a deliberately TestFlight-only build. Then test the refusal against the live
+workflow in both directions: a guard that has only ever passed is not evidence that it fires.
+
+**Finally, Xcode Cloud cannot submit for review at all.** It has no such action — it archives,
+uploads, and can distribute to testing groups, and nothing else. The App Store version, the App Clip
+experience, the export-compliance answers and the submission itself are all local. Fixing the
+audience is what makes a cloud build *usable* for a release, not what makes the cloud path
+*complete*: a release that reaches the App Store still ends with a local `deliver`/`submit` step, no
+matter who produced the build.
+
 ---
 
 ## 9. Common errors
@@ -410,6 +469,7 @@ transition) — an attach that is not read back is not evidence it landed.
 | `CI=true` breaks match | Cursor sets `CI=true`, putting match in readonly mode | `export CI=false` |
 | `403` `"Allowed operations are: CREATE, GET_INSTANCE"` on `GET /v1/ciBuildRuns` | Listing cloud build runs is not permitted; only create and instance-read are | Not a denial of the endpoint — `POST /v1/ciBuildRuns` starts a run. See "Xcode Cloud builds" |
 | Cloud build number is well ahead of `latest_testflight_build_number` / `fastlane status` | The Xcode Cloud counter is product-wide, and push-triggered compile-only runs consumed the intervening numbers | Expected — read the next number from App Store Connect, not from the per-version prediction |
+| `The specified pre-release build could not be added. - /data/relationships/build` on submit | The build's `buildAudienceType` is `INTERNAL_ONLY`. Apple will not attach an internal-only build to an App Store version, and reports it against the relationship rather than the audience | Not a fastlane defect, and **not repairable on that build** — set the workflow's archive action to `APP_STORE_ELIGIBLE` and build again. See "Xcode Cloud builds" |
 
 ---
 
