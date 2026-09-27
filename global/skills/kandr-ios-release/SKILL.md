@@ -363,6 +363,25 @@ advisory. Never present it as "the next build number", and never hand-edit a num
 gap — numbers no longer restart at 1 when the marketing version bumps; the counter is across
 versions.
 
+### A cloud upload does not attach the build to a testing group
+
+**"Uploaded successfully" is not "testers can install it", and the two build paths differ on
+exactly that point.** The local lane's `upload_to_testflight` assigns the build to a beta testing
+group as part of the upload; an Xcode Cloud `Archive` action uploads the build and stops, the
+group relationship being no part of that upload. The build then reaches `VALID` with App Store
+Connect holding it and **in no group at all**, which puts it in nobody's TestFlight app.
+
+The symptom is what makes this expensive: a `VALID` build in zero groups is invisible, and it
+presents exactly like Apple's propagation delay — so the natural response, wait and then
+re-upload, burns a day and a build number without touching the cause. **The check that settles it
+is the build's `betaGroups` relationship** (`GET /v1/builds/{id}?include=betaGroups`); empty is
+the defect rather than a timing artefact, and it is readable as soon as the build is `VALID`. The
+corroborating transition is `buildBetaDetail.internalBuildState`: a build in no group sits at
+`READY_FOR_BETA_TESTING`, and attaching it to one moves it to `IN_BETA_TESTING` and turns
+`autoNotifyEnabled` on. Attaching is a **reversible relationship write** — not a re-upload — so a
+build stranded this way is repaired rather than rebuilt. Read `betaGroups` before reporting any
+TestFlight build as available, and say "uploaded but in no group" when that is what the API shows.
+
 ---
 
 ## 9. Common errors
