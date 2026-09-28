@@ -323,12 +323,46 @@ Xcode Cloud surface at all (no `ci_build_run`, `ciWorkflow` or `xcodecloud` anyw
 and the Xcode CLI ships no cloud or CI tool — `altool` and `notarytool` only upload and notarize.
 Do not spend a session looking for a caller; there is only the REST API. Environment variables are
 the part that genuinely has **no** API surface and must be entered in the web UI or Xcode — do not
-read that gap as covering the trigger.
+read that gap as covering the trigger, which does have one (next section).
 
 Where the project ships a trigger helper, use it rather than hand-rolling the call: the JWT has one
 field that is easy to get wrong — `dsaEncoding: "ieee-p1363"`, because Node signs DER by default
 and Apple answers that with `InvalidProviderToken`, an error naming the token rather than the
 encoding.
+
+### The workflow's triggers are editable over the API, and two traps make it look like they are not
+
+**What starts a run is workflow configuration, not a web-UI-only setting.** `branchStartCondition`,
+`tagStartCondition`, `pullRequestStartCondition`, `scheduledStartCondition` and the three
+`manual*StartCondition` fields are **attributes of the `ciWorkflows` resource**, so a plain
+`GET /v1/ciWorkflows/{id}` reads them and `PATCH` on the same path writes them. There is no
+`startConditions` relationship — `GET /v1/ciWorkflows/{id}/startConditions` is **404**, and
+concluding from that 404 that the trigger config has no API surface is the wrong turn to take; the
+403 recorded above belongs to the unscoped `GET /v1/ciBuildRuns` **list**, a different endpoint.
+
+Two traps, both silent, because a PATCH answering `200` is not a write that landed:
+
+- **`branchStartCondition: null` is ignored.** It is `nullable: true` in Apple's own OpenAPI schema,
+  and `null` is exactly what a manual-only workflow holds, but the attribute reads back unchanged.
+  `{}` and `{source: null}` fail **409** *"must provide a value for the attribute
+  'branchStartCondition/source'"*. **The API cannot remove a start condition**, so the reachable off
+  state is a condition that matches nothing: `isAllMatch: false` with an empty `patterns` array.
+  `isAllMatch: true` with no patterns is the opposite — every branch, which is what the manual
+  condition uses — so getting that boolean backwards silently turns "off" into "on everything".
+- **Sending one start condition clears the others.** A PATCH carrying only `branchStartCondition`
+  resets `manualBranchStartCondition` to `null`, which makes the workflow unstartable by hand. Send
+  every condition the workflow should keep in **one** request, and read them all back afterwards.
+
+**Why a push trigger deserves a second look.** A compile-only workflow on the default branch is
+reasonable when nothing else validates the build, and redundant the moment local pre-push validation
+exists — and it is never free, because **every run consumes a number from the product-wide
+`CI_BUILD_NUMBER` counter** that stamps TestFlight builds, whether or not the run produces anything.
+`autoCancel: true` (the default) means a busy branch mostly spends those numbers cancelling itself,
+which reads in the run list as a wall of `CANCELED`. Measure before deciding: the runs are in
+`GET /v1/ciWorkflows/{id}/buildRuns?sort=-number`, and **`startReason` is the field that settles
+where a run came from** — `MANUAL` versus `GIT_REF_CHANGE` versus `SCHEDULED`. Start conditions are
+worth reading and writing deliberately rather than leaving whatever the setup wizard chose, and a
+workflow an owner expects to be deliberate should read `MANUAL` on every run it produces.
 
 ### Reading a finished run's log — the answer to "we could not verify it"
 
@@ -359,10 +393,14 @@ hand-rolled calls.
 
 `fastlane status` and `latest_testflight_build_number` report App Store Connect's **per-version**
 counter. Xcode Cloud stamps the build with `CI_BUILD_NUMBER`, which is **product-wide and
-monotonic**: every run in the product consumes a number, including the compile-only workflows that
-fire on every push to the default branch. On the release where this surfaced, `fastlane status`
+monotonic**: every run in the product consumes a number, including compile-only workflows that fire
+on every push to the default branch. On the release where this surfaced, `fastlane status`
 predicted **11** and the build uploaded as **17**, because CI runs #11–#16 had already consumed the
 intervening numbers; App Store Connect accepted the jump.
+
+That cost is a reason to check what the product's workflows are actually triggered by — see "The
+workflow's triggers are editable over the API" above, which is how a redundant push-triggered
+compile check gets turned off and the gap narrowed rather than just explained.
 
 So **confirm the next number from Xcode Cloud / App Store Connect** (Settings → Xcode Cloud →
 Build Number → Next Build Number) rather than predicting it, and treat any per-version figure as
@@ -433,7 +471,8 @@ web UI implies otherwise. Send the **full** `actions` array carrying every exist
 change only the archive's audience, because a partial array silently drops the actions it omits.
 Then **read the workflow back**: a mistake here is invisible until a submission fails. Re-check the
 workflow's triggers in that same read-back, since fixing an audience must not disturb a manual-only
-configuration.
+configuration — a lone `branchStartCondition` in a PATCH clears `manualBranchStartCondition`, which
+is the trap described in "The workflow's triggers are editable over the API" above.
 
 **Where the project ships a trigger helper, it should refuse rather than warn.** The cost of
 finding out is a full archive; the cost of checking is one API read. Have the helper assert every
@@ -468,7 +507,7 @@ matter who produced the build.
 | ITMS-90683 missing purpose string | `Info.plist` missing an `NS*UsageDescription` key | Add the key. Check `git diff` on Info.plist — large commits revert these |
 | `CI=true` breaks match | Cursor sets `CI=true`, putting match in readonly mode | `export CI=false` |
 | `403` `"Allowed operations are: CREATE, GET_INSTANCE"` on `GET /v1/ciBuildRuns` | Listing cloud build runs is not permitted; only create and instance-read are | Not a denial of the endpoint — `POST /v1/ciBuildRuns` starts a run. See "Xcode Cloud builds" |
-| Cloud build number is well ahead of `latest_testflight_build_number` / `fastlane status` | The Xcode Cloud counter is product-wide, and push-triggered compile-only runs consumed the intervening numbers | Expected — read the next number from App Store Connect, not from the per-version prediction |
+| Cloud build number is well ahead of `latest_testflight_build_number` / `fastlane status` | The Xcode Cloud counter is product-wide, so any other workflow's runs consume the intervening numbers | Expected — read the next number from App Store Connect, not from the per-version prediction. If the cause is a push-triggered compile-only workflow, that trigger is editable: see "The workflow's triggers are editable over the API" |
 | `The specified pre-release build could not be added. - /data/relationships/build` on submit | The build's `buildAudienceType` is `INTERNAL_ONLY`. Apple will not attach an internal-only build to an App Store version, and reports it against the relationship rather than the audience | Not a fastlane defect, and **not repairable on that build** — set the workflow's archive action to `APP_STORE_ELIGIBLE` and build again. See "Xcode Cloud builds" |
 
 ---
