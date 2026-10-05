@@ -1,12 +1,16 @@
 ---
 name: kandr-aws
-description: AWS access for Kandr — resolving credentials from GCP Secret Manager, configuring or inlining them for the AWS CLI, the account details, and the Route 53 hosted zone for kandr.io with its existing subdomain records. Use when running an AWS CLI command, adding or changing a DNS record, pointing a subdomain at Firebase Hosting or Cloud Run, or debugging kandr.io DNS.
+description: AWS access for Kandr — resolving credentials from GCP Secret Manager, configuring or inlining them for the AWS CLI, SES inbound, leftover EC2, and S3. Use when running an AWS CLI command or debugging SES / leftover AWS compute. Do not use for kandr.io DNS — that is kandr-dns (Cloudflare).
 ---
 
 # AWS
 
 AWS credentials are stored in **GCP Secret Manager** under the `streamingapp-32dcb` project. Never
 inline the key values anywhere.
+
+DNS for `kandr.io` is **not** here. Authoritative DNS is Cloudflare — see `kandr-dns`. Route 53
+hosted zone `Z5Q853FSJIIQT` is **retired for writes** (rollback-only). Do not
+`change-resource-record-sets` against it.
 
 ## Retrieving credentials
 
@@ -59,25 +63,33 @@ export AWS_DEFAULT_REGION="us-east-1"
 | Region | `us-east-1` |
 
 > **Known issue — root access keys.** The stored credentials belong to the account root user, not
-> an IAM user, which AWS explicitly advises against. Rotating them touches Route 53 and every
-> script that reads these secrets, so it is tracked as its own task rather than done incidentally.
+> an IAM user, which AWS explicitly advises against. Rotating them touches every script that reads
+> these secrets, so it is tracked as its own task rather than done incidentally.
 > Do not create new root keys, and do not widen where these credentials are used until rotation
 > lands.
 
-## Route 53 (kandr.io DNS)
+## Retired Route 53 hosted zone
 
 | Setting | Value |
 |---|---|
-| Hosted Zone ID | `Z5Q853FSJIIQT` |
+| Hosted zone ID | `Z5Q853FSJIIQT` |
 | Domain | `kandr.io` |
+| Status | **Do not write.** Rollback copy only. |
 
-### Existing subdomains (do not modify without checking)
+Registrar (nameservers / transfer) is Route 53 **Registered domains** in this same account, not
+the hosted zone. Do not change NS, unlock transfer, or delete the zone unless Ryan asks. New
+`*.kandr.io` records go to Cloudflare via `kandr-dns`.
 
-- `faithmusic.kandr.io` — Firebase Hosting (A record)
-- `admin.faithmusic.kandr.io` — Firebase Hosting (CNAME)
-- `radio.kandr.io` — Firebase Hosting
-- `restore.kandr.io` — Cloud Run
-- `yardsale.kandr.io` — Firebase Hosting
-- `myfish.kandr.io` — Firebase Hosting (CNAME → `fishon-kandr-app.web.app`, admin at `/admin`)
-- `kandr.io` — Firebase Hosting (`kandr-io` site on `rlibbey-pocs`)
-- MX records — Google Workspace (do NOT touch)
+## SES (still AWS)
+
+Apex, `faithmusic.kandr.io`, and `radio.kandr.io` still have MX →
+`inbound-smtp.us-east-1.amazonaws.com`. Bounce/feedback names `mail.*` point at
+`feedback-smtp.us-east-1.amazonses.com`. Those **records** live on Cloudflare (DNS-only); the
+mailboxes/queues are still SES. Do not move inbound to Cloudflare Email Routing. See
+`kandr-email`.
+
+## Leftover EC2
+
+`streaming.kandr.io` and `streaming-dev.kandr.io` are A records to `3.19.159.96`. Origin is
+unconfirmed. Do not proxy them. Do not assume they can be deleted. DNS edits for those names
+still go through `kandr-dns`.

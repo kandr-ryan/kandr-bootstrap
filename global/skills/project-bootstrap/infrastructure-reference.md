@@ -932,31 +932,27 @@ export const onContactFormWrite = onDocumentCreated(
 
 ---
 
-## DNS — Route 53 Commands
+## DNS — Cloudflare (kandr.io)
+
+Authoritative DNS is Cloudflare full setup (Free). Skill: `kandr-dns`. Do not write Route 53
+hosted zone `Z5Q853FSJIIQT`. Token: `CLOUDFLARE_API_TOKEN` (never print or overwrite). Grey-cloud
+(`proxied: false`) unless Ryan asks to proxy.
 
 ### Add CNAME record for Firebase Hosting
 
 ```bash
-# Load AWS credentials (see ~/.cursor/rules/aws-credentials.mdc)
-AWS_KEY=$(gcloud secrets versions access latest --secret=aws-access-key --project=streamingapp-32dcb)
-AWS_SECRET=$(gcloud secrets versions access latest --secret=aws-secret-key --project=streamingapp-32dcb)
-export AWS_ACCESS_KEY_ID="$AWS_KEY"
-export AWS_SECRET_ACCESS_KEY="$AWS_SECRET"
-export AWS_DEFAULT_REGION="us-east-1"
-
-# Add CNAME: {subdomain}.kandr.io → {siteId}.web.app
-aws route53 change-resource-record-sets \
-  --hosted-zone-id Z5Q853FSJIIQT \
-  --change-batch '{
-    "Changes": [{
-      "Action": "UPSERT",
-      "ResourceRecordSet": {
-        "Name": "{subdomain}.kandr.io",
-        "Type": "CNAME",
-        "TTL": 300,
-        "ResourceRecords": [{"Value": "{siteId}.web.app"}]
-      }
-    }]
+# Dashboard: Cloudflare → kandr.io → DNS → Add record → CNAME, DNS only (grey cloud)
+# API:
+curl -s -X POST \
+  "https://api.cloudflare.com/client/v4/zones/6586a47fb64386dd05f01baa20b30892/dns_records" \
+  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "type": "CNAME",
+    "name": "{subdomain}",
+    "content": "{siteId}.web.app",
+    "ttl": 300,
+    "proxied": false
   }'
 ```
 

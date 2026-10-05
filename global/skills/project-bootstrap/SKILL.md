@@ -246,10 +246,12 @@ The standard Kandr auth stack is: Anonymous + Apple + Google + Email OTP.
         -H "x-goog-user-project: {projectId}" \
         -H "Content-Type: application/json" -d '{}'
 - [ ] Get the required DNS records from the response
-- [ ] Add DNS records in Route 53:
-      AWS credentials: see ~/.cursor/rules/aws-credentials.mdc
-      Hosted Zone: Z5Q853FSJIIQT (kandr.io)
-      Add CNAME: {subdomain}.kandr.io → {firebaseHostingTarget}.web.app
+- [ ] Add DNS-only records on Cloudflare (see `kandr-dns`). Do not write Route 53
+      hosted zone Z5Q853FSJIIQT. Zone: kandr.io (full setup, Free).
+      API: POST /zones/6586a47fb64386dd05f01baa20b30892/dns_records
+      with CLOUDFLARE_API_TOKEN, proxied=false.
+      Dashboard: Cloudflare → kandr.io → DNS → Add record → CNAME, grey cloud.
+      CNAME: {subdomain}.kandr.io → {siteId}.web.app (or A 199.36.158.100)
 - [ ] Verify domain in Firebase Console (may take up to 24h for SSL provisioning)
 ```
 
@@ -311,7 +313,9 @@ The marketing site gets its own Firebase Hosting site.
 
 ```
 - [ ] Create inbox via AgentMail API or dashboard for {subdomain}.kandr.io
-- [ ] Configure DNS (MX, SPF, DKIM, DMARC) in Route 53 for the subdomain
+- [ ] Configure DNS (MX, SPF, DKIM, DMARC) on Cloudflare, DNS-only — see `kandr-dns`.
+      Do not enable Cloudflare Email Routing. AgentMail stays the app sender.
+      Email Sending on kandr.io uses `cf-bounce` only — do not add Sending records on a new apex.
 - [ ] Store API key in GCP Secret Manager:
       gcloud secrets create AGENTMAIL_API_KEY --project={projectId}
 - [ ] Inboxes: support@{subdomain}.kandr.io, noreply@{subdomain}.kandr.io
@@ -669,7 +673,7 @@ These values are consistent across all Kandr apps:
 | ASC Key ID | `6LF5PQ5KPG` |
 | ASC Issuer ID | `69a6de80-f231-47e3-e053-5b8c7c11a4d1` |
 | GitHub Org | `kandr-ryan` |
-| Route 53 Zone | `Z5Q853FSJIIQT` (kandr.io) |
+| Cloudflare zone | `kandr.io` (full setup, Free) — see `kandr-dns` |
 | Super Admin Emails | `ryan@kandr.io`, `rlibbey@gmail.com` |
 | Firebase Functions Runtime | Node 22 |
 | iOS Deployment Target | 17.0 |
