@@ -781,7 +781,7 @@ ui-debug.log
 # iOS
 *.xcodeproj
 *.xcworkspace
-xcuserdata/
+xcudata/
 DerivedData/
 *.ipa
 *.dSYM.zip
@@ -932,31 +932,32 @@ export const onContactFormWrite = onDocumentCreated(
 
 ---
 
-## DNS — Route 53 Commands
+## DNS — Cloudflare Commands
+
+Authoritative DNS for `kandr.io` is Cloudflare (full setup, Free). See `kandr-dns`.
+Do not write Route 53 hosted zone `Z5Q853FSJIIQT`.
 
 ### Add CNAME record for Firebase Hosting
 
-```bash
-# Load AWS credentials (see ~/.cursor/rules/aws-credentials.mdc)
-AWS_KEY=$(gcloud secrets versions access latest --secret=aws-access-key --project=streamingapp-32dcb)
-AWS_SECRET=$(gcloud secrets versions access latest --secret=aws-secret-key --project=streamingapp-32dcb)
-export AWS_ACCESS_KEY_ID="$AWS_KEY"
-export AWS_SECRET_ACCESS_KEY="$AWS_SECRET"
-export AWS_DEFAULT_REGION="us-east-1"
+Grey-cloud (`proxied: false`). Dashboard: Cloudflare → `kandr.io` → DNS → Add record.
 
-# Add CNAME: {subdomain}.kandr.io → {siteId}.web.app
-aws route53 change-resource-record-sets \
-  --hosted-zone-id Z5Q853FSJIIQT \
-  --change-batch '{
-    "Changes": [{
-      "Action": "UPSERT",
-      "ResourceRecordSet": {
-        "Name": "{subdomain}.kandr.io",
-        "Type": "CNAME",
-        "TTL": 300,
-        "ResourceRecords": [{"Value": "{siteId}.web.app"}]
-      }
-    }]
+```bash
+# CLOUDFLARE_API_TOKEN must already be in the environment (Cursor Runtime Secrets
+# inject on Cursor-hosted cloud VMs only — not My Machines / self-hosted).
+# Never print or overwrite the token.
+: "${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN is not set}"
+ZONE_ID=6586a47fb64386dd05f01baa20b30892
+
+# Add CNAME: {subdomain}.kandr.io → {siteId}.web.app (DNS-only)
+curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records" \
+  -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "type": "CNAME",
+    "name": "{subdomain}.kandr.io",
+    "content": "{siteId}.web.app",
+    "ttl": 300,
+    "proxied": false
   }'
 ```
 
