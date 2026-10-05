@@ -1,12 +1,16 @@
 ---
 name: kandr-aws
-description: AWS access for Kandr — resolving credentials from GCP Secret Manager, configuring or inlining them for the AWS CLI, the account details, and the Route 53 hosted zone for kandr.io with its existing subdomain records. Use when running an AWS CLI command, adding or changing a DNS record, pointing a subdomain at Firebase Hosting or Cloud Run, or debugging kandr.io DNS.
+description: AWS access for Kandr — resolving credentials from GCP Secret Manager, configuring or inlining them for the AWS CLI, SES, and leftover EC2. Use when running an AWS CLI command, working with SES, or inspecting leftover AWS compute. Do not use this skill to add or change kandr.io DNS — that is kandr-dns (Cloudflare). Hosted zone Z5Q853FSJIIQT is retired for writes.
 ---
 
 # AWS
 
 AWS credentials are stored in **GCP Secret Manager** under the `streamingapp-32dcb` project. Never
 inline the key values anywhere.
+
+DNS for `kandr.io` is **not** this skill. Authoritative DNS is Cloudflare — see `kandr-dns`.
+Route 53 hosted zone `Z5Q853FSJIIQT` is **retired for writes** (rollback only). Do not
+`change-resource-record-sets` there.
 
 ## Retrieving credentials
 
@@ -59,25 +63,18 @@ export AWS_DEFAULT_REGION="us-east-1"
 | Region | `us-east-1` |
 
 > **Known issue — root access keys.** The stored credentials belong to the account root user, not
-> an IAM user, which AWS explicitly advises against. Rotating them touches Route 53 and every
-> script that reads these secrets, so it is tracked as its own task rather than done incidentally.
-> Do not create new root keys, and do not widen where these credentials are used until rotation
-> lands.
+> an IAM user, which AWS explicitly advises against. Rotating them touches SES, leftover EC2, and
+> every script that reads these secrets, so it is tracked as its own task rather than done
+> incidentally. Do not create new root keys, and do not widen where these credentials are used
+> until rotation lands.
 
-## Route 53 (kandr.io DNS)
+## What still lives on AWS (not DNS writes)
 
-| Setting | Value |
+| Item | Notes |
 |---|---|
-| Hosted Zone ID | `Z5Q853FSJIIQT` |
-| Domain | `kandr.io` |
+| SES inbound / bounce | Apex and some product MX still point at `inbound-smtp` / `feedback-smtp` in `us-east-1`. The **records** are on Cloudflare (`kandr-dns`). Do not move mailboxes. |
+| Leftover EC2 | `streaming.kandr.io` / `streaming-dev.kandr.io` A `3.19.159.96`. Confirm what this box is before changing it. |
+| Route 53 Registered domains | Registrar for `kandr.io` (`rlibbey@gmail.com`). Nameserver / transfer changes only when Ryan asks. Not a DNS write path. |
+| Hosted zone `Z5Q853FSJIIQT` | Rollback only. Do not add, change, or delete records here. |
 
-### Existing subdomains (do not modify without checking)
-
-- `faithmusic.kandr.io` — Firebase Hosting (A record)
-- `admin.faithmusic.kandr.io` — Firebase Hosting (CNAME)
-- `radio.kandr.io` — Firebase Hosting
-- `restore.kandr.io` — Cloud Run
-- `yardsale.kandr.io` — Firebase Hosting
-- `myfish.kandr.io` — Firebase Hosting (CNAME → `fishon-kandr-app.web.app`, admin at `/admin`)
-- `kandr.io` — Firebase Hosting (`kandr-io` site on `rlibbey-pocs`)
-- MX records — Google Workspace (do NOT touch)
+S3 and other AWS CLI work stays here. New `*.kandr.io` hostnames go to `kandr-dns`.

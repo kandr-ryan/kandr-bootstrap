@@ -36,7 +36,10 @@ Check the row before rotating.
   `info@faithmusic.kandr.io` (CRM allowlist for envelope From; create additional inboxes in
   AgentMail before adding to the allowlist in code)
 - **Firebase project**: `streamingapp-32dcb`
-- **DNS**: MX, SPF, DKIM, DMARC all configured in Route 53
+- **DNS**: MX, SPF, DKIM, DMARC live on Cloudflare, DNS-only — see `kandr-dns`. Do **not**
+  enable Cloudflare Email Routing (conflicts with Google MX). AgentMail stays the app
+  sender. Cloudflare Email Sending on this zone uses the `cf-bounce` selector /
+  `cf-bounce.kandr.io` return-path only.
 
 ## SDK usage (Cloud Functions)
 

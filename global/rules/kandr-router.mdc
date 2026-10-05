@@ -1,5 +1,5 @@
 ---
-description: Routes work to the shared kandr-* skills and carries the standing safety rules that need no trigger. Read the matching skill before acting on any development, QA, functions, deploy, iOS release, secrets, worklog, Stripe, Firebase, AWS, email, image, or toolchain task.
+description: Routes work to the shared kandr-* skills and carries the standing safety rules that need no trigger. Read the matching skill before acting on any development, QA, functions, deploy, iOS release, secrets, worklog, Stripe, Firebase, DNS, AWS, email, image, or toolchain task.
 alwaysApply: true
 ---
 
@@ -26,7 +26,8 @@ acting, not after. Each is at `~/.cursor/skills/<name>/SKILL.md`.
 |---|---|
 | Stripe: checkout, subscriptions, billing, invoices, webhooks, or where a Stripe key belongs | `kandr-stripe` |
 | A Firebase project ID, hosting site or target, deploy command, or custom domain | `kandr-firebase` |
-| AWS CLI, Route 53, DNS records, or pointing a subdomain somewhere | `kandr-aws` |
+| DNS records, a new `*.kandr.io` hostname, or Cloudflare zone edits | `kandr-dns` |
+| AWS CLI, SES, S3, or leftover EC2 | `kandr-aws` |
 | Sending email, inboxes, sending domains, contact forms, delivery problems | `kandr-email` |
 | Generating or editing an image, logo, icon, hero, or visual asset | `kandr-images` |
 | A tool version, a binary path, or a failure that smells like PATH or toolchain | `kandr-machine` |

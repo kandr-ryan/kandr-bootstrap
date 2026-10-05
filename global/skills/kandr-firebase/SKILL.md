@@ -100,7 +100,9 @@ curl -X POST "https://firebasehosting.googleapis.com/v1beta1/projects/PROJECT_ID
   -H "Content-Type: application/json" -d '{}'
 ```
 
-Then update Route 53 DNS — see the `kandr-aws` skill for the hosted zone and existing records.
+Then add DNS-only A/CNAME plus `hosting-site` / ACME TXT on Cloudflare — see `kandr-dns`.
+Do not orange-cloud Firebase hostnames unless Ryan asks. Do not write Route 53 hosted zone
+`Z5Q853FSJIIQT`.
 
 ## Cloud Functions
 
