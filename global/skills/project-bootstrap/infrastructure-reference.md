@@ -781,7 +781,7 @@ ui-debug.log
 # iOS
 *.xcodeproj
 *.xcworkspace
-xcudata/
+xcuserdata/
 DerivedData/
 *.ipa
 *.dSYM.zip
